@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Опис 1.0</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #eeeeee;
+      color: #414141;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #48d597;
+      margin-bottom: 20px;
+    }
+
+    .form-section {
+      background: #ffffff;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 15px 0;
+    }
+
+    label {
+      display: inline-block;
+      margin: 6px 10px 6px 0;
+      font-size: 14px;
+    }
+
+    input[type="text"], input[type="number"] {
+      padding: 6px;
+      margin: 2px 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    /* широкі інпути */
+    #brand, #description {
+      width: 95%;
+    }
+
+    /* компактні інпути */
+    .category-fields input[type="text"] {
+      width: 70px;
+    }
+
+    .category-fields {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .category-box {
+      display: inline-block;
+      background: #b6a9f7;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin: 4px 6px 4px 0;
+      cursor: pointer;
+    }
+
+    .category-box input {
+      display: none;
+    }
+
+    .category-box.selected {
+      background: #48d597;
+    }
+
+    button {
+      background: #48d597;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 10px 5px 0 0;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #b6a9f7;
+    }
+
+    #result {
+      white-space: pre-line;
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      margin-top: 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Опис 1.0</h1>
+    <div class="form-section">
+      <label>Ціна: <input type="number" id="price" placeholder="100"></label><br>
+      <label>Бренд: <input type="text" id="brand"></label><br>
+      <label>Опис: <input type="text" id="description"></label><br>
+      <hr>
+      <label>Стан:
+        <input type="radio" name="condition" value="Стан чудовий" checked> Чудовий
+        <input type="radio" name="condition" value="Стан дуже хороший"> Дуже хороший
+      </label>
+      <hr>
+      <label>Розмір:</label><br>
+      <label><input type="checkbox" name="size" value="XS">XS</label>
+      <label><input type="checkbox" name="size" value="S">S</label>
+      <label><input type="checkbox" name="size" value="M">M</label>
+      <label><input type="checkbox" name="size" value="L">L</label>
+      <label><input type="checkbox" name="size" value="XL">XL</label>
+      <label><input type="checkbox" name="size" value="XXL">XXL</label>
+      <hr>
+      <label>Категорія:</label><br>
+      <label class="category-box"><input type="radio" name="category" value="sweater">Светр</label>
+      <label class="category-box"><input type="radio" name="category" value="pants">Штани</label>
+      <label class="category-box"><input type="radio" name="category" value="skirt">Спідниця</label>
+      <label class="category-box"><input type="radio" name="category" value="tshirt">Футболка</label>
+      <label class="category-box"><input type="radio" name="category" value="outerwear">Верхній одяг</label>
+
+      <!-- Светр -->
+      <div id="sweater-fields" class="category-fields">
+        <label>груди: <input type="text" id="sweater-chest"></label>
+        <label>низ: <input type="text" id="sweater-bottom"></label>
+        <label>рукав: <input type="text" id="sweater-sleeve"> <input type="checkbox" id="sweater-neck">від горл.</label>
+        <label>довж.: <input type="text" id="sweater-length"></label>
+      </div>
+
+      <!-- Штани -->
+      <div id="pants-fields" class="category-fields">
+        <label>пояс: <input type="text" id="pants-waist"></label>
+        <label>стегна: <input type="text" id="pants-hips"></label>
+        <label>посадка: <input type="text" id="pants-rise"></label>
+        <label>довж.: <input type="text" id="pants-length"></label>
+        <label>низ: <input type="text" id="pants-leg"></label>
+      </div>
+
+      <!-- Спідниця -->
+      <div id="skirt-fields" class="category-fields">
+        <label>пояс: <input type="text" id="skirt-waist"></label>
+        <label>стегна: <input type="text" id="skirt-hips"></label>
+        <label>довж.: <input type="text" id="skirt-length"></label>
+      </div>
+
+      <!-- Футболка -->
+      <div id="tshirt-fields" class="category-fields">
+        <label>груди: <input type="text" id="tshirt-chest"></label>
+        <label>низ: <input type="text" id="tshirt-bottom"></label>
+        <label>довж.: <input type="text" id="tshirt-length"></label>
+      </div>
+
+      <!-- Верхній одяг -->
+      <div id="outerwear-fields" class="category-fields">
+        <label>плечі: <input type="text" id="outerwear-shoulder"></label>
+        <label>груди: <input type="text" id="outerwear-chest"></label>
+        <label>низ: <input type="text" id="outerwear-bottom"></label>
+        <label>рукав: <input type="text" id="outerwear-sleeve"> <input type="checkbox" id="outerwear-neck">від горл.</label>
+        <label>довж.: <input type="text" id="outerwear-length"></label>
+      </div>
+
+      <hr>
+      <label>Матеріал:</label><br>
+      <label><input type="checkbox" name="material" value="бавовна">Бавовна</label>
+      <label><input type="checkbox" name="material" value="віскоза">Віскоза</label>
+      <label><input type="checkbox" name="material" value="еластан">Еластан</label>
+      <label><input type="checkbox" name="material" value="вовна">Вовна</label>
+      <label><input type="checkbox" name="material" value="кашемір">Кашемір</label>
+      <label><input type="checkbox" name="material" value="нейлон">Нейлон</label>
+      <label><input type="checkbox" name="material" value="поліамід">Поліамід</label>
+      <label><input type="checkbox" name="material" value="акрил">Акрил</label>
+      <input type="text" id="material-other" placeholder="інше">
+      <hr>
+      <button onclick="generateDescription()">Генерувати</button>
+      <button onclick="copyText()">Копіювати</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // виділення активної категорії
+    document.querySelectorAll('.category-box input').forEach(radio => {
+      radio.addEventListener("change", function() {
+        document.querySelectorAll(".category-fields").forEach(div => div.style.display = "none");
+        document.getElementById(this.value + "-fields").style.display = "block";
+
+        document.querySelectorAll(".category-box").forEach(box => box.classList.remove("selected"));
+        this.parentElement.classList.add("selected");
+      });
+    });
+
+    function generateDescription() {
+      const price = document.getElementById("price").value;
+      const brand = document.getElementById("brand").value;
+      const description = document.getElementById("description").value;
+      const condition = document.querySelector('input[name="condition"]:checked').value;
+      const sizes = Array.from(document.querySelectorAll('input[name="size"]:checked')).map(el => el.value).join("/");
+      const category = document.querySelector('input[name="category"]:checked')?.value;
+
+      let categoryText = "";
+      if (category === "sweater") {
+        const chest = document.getElementById("sweater-chest").value;
+        const bottom = document.getElementById("sweater-bottom").value;
+        const sleeve = document.getElementById("sweater-sleeve").value;
+        const sleeveNeck = document.getElementById("sweater-neck").checked ? " від горловини" : "";
+        const length = document.getElementById("sweater-length").value;
+        categoryText = `${chest ? "по груди " + chest + "\n" : ""}${bottom ? "по низу " + bottom + "\n" : ""}${sleeve ? "рукав " + sleeve + sleeveNeck + "\n" : ""}${length ? "довжина " + length + "\n" : ""}`;
+      }
+      if (category === "pants") {
+        const waist = document.getElementById("pants-waist").value;
+        const hips = document.getElementById("pants-hips").value;
+        const rise = document.getElementById("pants-rise").value;
+        const length = document.getElementById("pants-length").value;
+        const leg = document.getElementById("pants-leg").value;
+        categoryText = `${waist ? "по пояс " + waist + "\n" : ""}${hips ? "по стегна " + hips + "\n" : ""}${rise ? "посадка " + rise + "\n" : ""}${length ? "довжина " + length + "\n" : ""}${leg ? "ширина внизу " + leg + "\n" : ""}`;
+      }
+      if (category === "skirt") {
+        const waist = document.getElementById("skirt-waist").value;
+        const hips = document.getElementById("skirt-hips").value;
+        const length = document.getElementById("skirt-length").value;
+        categoryText = `${waist ? "по пояс " + waist + "\n" : ""}${hips ? "по стегна " + hips + "\n" : ""}${length ? "довжина " + length + "\n" : ""}`;
+      }
+      if (category === "tshirt") {
+        const chest = document.getElementById("tshirt-chest").value;
+        const bottom = document.getElementById("tshirt-bottom").value;
+        const length = document.getElementById("tshirt-length").value;
+        categoryText = `${chest ? "по груди " + chest + "\n" : ""}${bottom ? "по низу " + bottom + "\n" : ""}${length ? "довжина " + length + "\n" : ""}`;
+      }
+      if (category === "outerwear") {
+        const shoulder = document.getElementById("outerwear-shoulder").value;
+        const chest = document.getElementById("outerwear-chest").value;
+        const bottom = document.getElementById("outerwear-bottom").value;
+        const sleeve = document.getElementById("outerwear-sleeve").value;
+        const sleeveNeck = document.getElementById("outerwear-neck").checked ? " від горловини" : "";
+        const length = document.getElementById("outerwear-length").value;
+        categoryText = `${shoulder ? "плечі " + shoulder + "\n" : ""}${chest ? "по груди " + chest + "\n" : ""}${bottom ? "по низу " + bottom + "\n" : ""}${sleeve ? "рукав " + sleeve + sleeveNeck + "\n" : ""}${length ? "довжина " + length + "\n" : ""}`;
+      }
+
+      const materials = Array.from(document.querySelectorAll('input[name="material"]:checked')).map(el => el.value);
+      const materialOther = document.getElementById("material-other").value;
+      if (materialOther) materials.push(materialOther);
+
+      const resultText = 
+        `${price ? "💸Ціна " + price + " грн\n" : ""}` +
+        `${brand}\n${description}\n${condition}\n` +
+        `—————————\n` +
+        `${sizes ? "розмір " + sizes + "\n" : ""}` +
+        `${categoryText}` +
+        `—————————\n` +
+        `${materials.join("/")}`;
+
+      document.getElementById("result").innerText = resultText.trim();
+    }
+
+    function copyText() {
+      const text = document.getElementById("result").innerText;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert("Текст скопійовано!");
+        }).catch(err => {
+          fallbackCopy(text);
+        });
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        alert("Текст скопійовано!");
+      } catch (err) {
+        alert("Не вдалося скопіювати 😢 Скопіюй вручну.");
+      }
+      document.body.removeChild(textarea);
+    }
+  </script>
+</body>
+</html>
