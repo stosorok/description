@@ -1,408 +1,552 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Опис 1.0</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>Опис 1.1</title>
+
+  <!-- =======================
+       ЗАМІНИ icon.png НА СВІЙ ФАЙЛ (якщо потрібно)
+       =======================
+       <link rel="apple-touch-icon" href="icon.png" />
+  -->
   <link rel="apple-touch-icon" href="icon.png" />
 
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0;
-      padding: 10px;
-      background: #eeeeee;
-      color: #414141;
+    :root{
+      --green: #48d597;
+      --violet: #b6a9f7;
+      --fg: #222;
+      --page-bg: #eeeeee;
+      --card-bg: #fff;
+      --gap: 10px;
     }
 
-    h1 {
-      text-align: center;
-      color: #414141;
-      margin-bottom: 15px;
+    html,body{height:100%;margin:0;padding:10px;background:var(--page-bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--fg);}
+    h1{ text-align:center;margin:6px 0 12px;font-size:20px;font-weight:800; }
+
+    label.section{display:block;font-weight:700;margin-bottom:6px;}
+    .form-section{margin-bottom:12px;}
+
+    input[type="text"], input[type="number"], textarea{
+      box-sizing:border-box;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:15px;width:100%;
+      background:var(--card-bg); color:var(--fg);
     }
 
-    .form-section {
-      margin-bottom: 15px;
+    input[type="checkbox"]{ accent-color: var(--green); }
+    input[type="radio"]{ accent-color: var(--violet); }
+
+    .radio-group, .size-group, .materials, .category-group, .actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+
+    .size-group label, .radio-group label, .materials label { display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; }
+    .category-pill { background:var(--violet); color:#fff; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700; user-select:none; }
+    .category-pill.active { background:var(--green); }
+
+    /* Категорія: кожен рядок label + input в один ряд */
+    .cat-fields{margin-top:8px; display:flex; flex-direction:column; gap:8px;}
+    .cat-row{display:flex; gap:12px; align-items:center;}
+    .cat-row label{width:120px; font-weight:600;}
+    .cat-row input{flex:1; padding:7px;}
+
+    /* зменшемо відступи на мобільних */
+    @media (max-width:420px){
+      .cat-row label{width:95px;}
     }
 
-    label {
-      font-weight: 600;
-      display: block;
-      margin-bottom: 4px;
-    }
+    /* MATERIALS 2 rows wrap */
+    .materials{gap:8px;}
 
-    input[type="text"], .generated-output {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 8px;
-      margin-bottom: 8px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
-    }
+    /* Дії */
+    .actions{margin-top:8px; gap:10px;}
+    .btn{flex:1;padding:10px;border-radius:8px;border:0;color:#fff;font-weight:800;cursor:pointer;font-size:15px;}
+    .btn.generate{background:var(--green);}
+    .btn.copy{background:var(--violet);}
+    .btn.save{background:#414141;}
 
-    /* Кастомні кольори для чекбоксів і радіо */
-    input[type="checkbox"] {
-      accent-color: #48d597; /* зелений */
-    }
-    input[type="radio"] {
-      accent-color: #b6a9f7; /* фіолетовий */
-    }
+    /* Output textarea - автопідгонка висоти через JS */
+    #output{ min-height:160px; max-height:60vh; overflow:hidden; margin-top:12px; border-radius:8px; }
 
-    .radio-group, .checkbox-group, .size-group, .material-group, .category-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    /* Saved list (акордеони) */
+    #savedList{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+    .saved-item{ background:#fff; border-radius:8px; padding:8px; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
+    .saved-header{ display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; user-select:none; padding:4px 2px; }
+    .saved-title{ font-weight:700; }
+    .saved-controls{ display:flex; gap:8px; }
+    .icon-btn{ width:36px; height:36px; border-radius:8px; background:transparent; border:0; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+    .icon-btn svg{ width:18px; height:18px; fill:var(--fg); }
 
-    .category-group label {
-      background: #b6a9f7;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      color: #fff;
-    }
+    .saved-body{ display:none; white-space:pre-line; margin-top:8px; color:#222; font-size:14px; }
 
-    hr {
-      border: none;
-      border-top: 1px solid #ccc;
-      margin: 12px 0;
-    }
+    /* CLEAR FAB */
+    .clear-fab{ position:fixed; right:14px; bottom:14px; width:46px; height:46px; border-radius:10px; background:#222; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:999; }
+    .clear-fab svg{ width:22px; height:22px; fill:#fff; }
 
-    /* Сітка для категорій: 3 колонки */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      align-items: center;
-    }
+    /* SPLASH */
+    #splash{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:10000; background: linear-gradient(135deg,#fc00ff 0%,#00dbde 100%); color:#fff; transition:opacity .45s ease; }
+    #splash .icon{ width:72px; height:72px; margin-bottom:12px; }
+    #splash h2{ margin:0; font-size:26px; font-weight:800; }
+    #splash .ver{ position:absolute; bottom:18px; font-size:13px; opacity:0.95; }
 
-    .grid-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .grid-item label {
-      font-weight: 400;
-      margin-right: 6px;
-    }
-
-    .grid-item input[type="text"] {
-      width: 50px;
-      padding: 4px;
-      font-size: 14px;
-      text-align: center;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    button {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .generate-btn {
-      background: #48d597;
-    }
-
-    .copy-btn {
-      background: #b6a9f7;
-    }
-
-    .clear-btn {
-      position: fixed;
-      bottom: 15px;
-      right: 15px;
-      width: 45px;
-      height: 45px;
-      background: #414141;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .clear-btn svg {
-      fill: #fff;
-      width: 22px;
-      height: 22px;
-    }
-
-    .generated-output {
-      white-space: pre-line;
-      background: #fff;
-      min-height: 150px;
-    }
-
-    /* Сплеш-екран */
-    #splash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      background: linear-gradient(135deg, #22B6FA, #1A66F0); /* 🎨 Тут можна змінити фон */
-      color: #fff;
-    }
-
-    #splash svg {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 15px;
-    }
-
-    #splash h2 {
-      margin: 0;
-      color: #9CD2FF;
-      font-size: 22px;
-    }
-
-    #splash p {
-      position: absolute;
-      bottom: 20px;
-      font-size: 14px;
-      margin: 0;
-    }
-
-//ВСТАВЛЕНО В РУЧНУ
-    #splash {
-      transition: opacity 0.5s ease;
-    }
-//ВСТАВЛЕНО В РУЧНУ КІНЕЦЬ
-
+    /* AUTOCOMPLETE dropdown */
+    .autocomplete-wrap{ position:relative; }
+    .suggestions{ position:absolute; left:0; right:0; background:#fff; border:1px solid #ccc; border-top:none; z-index:30; max-height:200px; overflow:auto; border-radius:0 0 8px 8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+    .suggestion{ padding:8px 10px; cursor:pointer; }
+    .suggestion:hover, .suggestion.active{ background:#f3f3f3; }
   </style>
 </head>
 <body>
-  <!-- Сплеш екран -->
-  <div id="splash">
-    <!-- 🖼️ Тут можна замінити іконку -->
-<svg xmlns="http://www.w3.org/2000/svg" width="101" height="116" viewBox="0 0 101 116" fill="none"><path d="M81.51 7.09L81.52 39.93L20.17 31.45V7.09L36.1 0.7C36.64 4.04 38.36 7.08 40.96 9.26C43.71 11.59 47.24 12.77 50.83 12.59C54.43 12.77 57.96 11.59 60.71 9.26C63.3 7.08 65.02 4.04 65.56 0.7L81.51 7.09Z" fill="#9CD2FF" stroke="url(#paint0_linear_80_15469)"/><mask id="path-2-inside-1_80_15469" fill="#fff"><path d="M50.83 7.93C53.16 8.12 55.47 7.44 57.33 6.02C59.18 4.6 60.44 2.55 60.87 0.25C57.61 1.22 54.23 1.7 50.83 1.7C47.43 1.7 44.05 1.21 40.8 0.24C41.22 2.54 42.48 4.6 44.33 6.02C46.19 7.44 48.5 8.12 50.83 7.93ZM82.01 65.28L19.66 56.66V85.38L82.01 94V65.28ZM9.27 78.57C9.28 80.07 9.83 81.51 10.83 82.64C11.82 83.76 13.18 84.49 14.67 84.69L15.5 84.81V72.31L14.68 72.42C13.2 72.64 11.84 73.38 10.85 74.51C9.86 75.63 9.3 77.07 9.27 78.57ZM12.2 30.85L15.5 31.31V11.88L1.6 31.69C1.34 32.05 1.16 32.45 1.06 32.88C0.96 33.31 0.94 33.75 1.01 34.18C1.08 34.62 1.24 35.03 1.47 35.4C1.71 35.78 2.01 36.1 2.37 36.35L5.11 38.27V36.99C5.11 36.1 5.3 35.23 5.67 34.43C6.03 33.63 6.57 32.91 7.23 32.33C7.91 31.74 8.7 31.31 9.56 31.05C10.41 30.8 11.32 30.73 12.2 30.85ZM84.08 53.65C84.08 54.2 83.86 54.73 83.47 55.12C83.09 55.51 82.56 55.73 82.01 55.73C81.45 55.73 80.93 55.51 80.54 55.12C80.15 54.73 79.93 54.2 79.93 53.65V44.41L75.77 43.83V49.5C75.77 50.05 75.55 50.58 75.16 50.97C74.77 51.36 74.24 51.57 73.69 51.57C73.14 51.57 72.61 51.36 72.22 50.97C71.83 50.58 71.61 50.05 71.61 49.5V43.26L67.46 42.69V49.5C67.46 50.05 67.24 50.58 66.85 50.97C66.46 51.36 65.93 51.57 65.38 51.57C64.83 51.57 64.3 51.36 63.91 50.97C63.52 50.58 63.3 50.05 63.3 49.5V42.11L59.14 41.54V45.34C59.14 45.89 58.93 46.42 58.54 46.81C58.15 47.2 57.62 47.42 57.07 47.42C56.52 47.42 55.99 47.2 55.6 46.81C55.21 46.42 54.99 45.89 54.99 45.34V40.96L50.83 40.39V47.42C50.83 47.97 50.61 48.5 50.22 48.89C49.83 49.28 49.3 49.5 48.75 49.5C48.2 49.5 47.67 49.28 47.28 48.89C46.89 48.5 46.68 47.97 46.68 47.42V39.81L42.52 39.24V43.26C42.52 43.81 42.3 44.34 41.91 44.73C41.52 45.12 40.99 45.34 40.44 45.34C39.89 45.34 39.36 45.12 38.97 44.73C38.58 44.34 38.36 43.81 38.36 43.26V38.66L34.21 38.09V45.34C34.21 45.89 33.99 46.42 33.6 46.81C33.21 47.2 32.68 47.42 32.13 47.42C31.58 47.42 31.05 47.2 30.66 46.81C30.27 46.42 30.05 45.89 30.05 45.34V37.51L25.89 36.94V39.11C25.89 39.66 25.67 40.19 25.28 40.57C24.89 40.96 24.37 41.18 23.81 41.18C23.26 41.18 22.73 40.96 22.34 40.57C21.96 40.19 21.74 39.66 21.74 39.11V36.37L17.58 35.79V43.26C17.58 43.81 17.36 44.34 16.97 44.73C16.58 45.12 16.05 45.34 15.5 45.34C14.95 45.34 14.42 45.12 14.03 44.73C13.64 44.34 13.42 43.81 13.42 43.26V35.22L11.64 34.97C11.54 34.96 11.44 34.95 11.35 34.95C10.84 34.95 10.35 35.13 9.97 35.46C9.75 35.65 9.57 35.88 9.45 36.15C9.33 36.41 9.27 36.7 9.27 36.99V49.25C9.27 49.74 9.46 50.22 9.78 50.59C10.11 50.96 10.56 51.2 11.05 51.27L89.63 62.13C91.39 62.37 93.06 63.06 94.47 64.13V51.77C94.47 50.9 94.28 50.05 93.92 49.27C93.57 48.48 93.05 47.78 92.4 47.21V51.57C92.4 52.13 92.18 52.65 91.79 53.04C91.4 53.43 90.87 53.65 90.32 53.65C89.77 53.65 89.24 53.43 88.85 53.04C88.46 52.65 88.24 52.13 88.24 51.57V45.56L84.08 44.98V53.65ZM86.16 11.88V41.07L89.67 41.56C90.06 41.63 90.44 41.71 90.82 41.82C90.93 41.84 91.04 41.87 91.15 41.9C91.2 41.91 91.25 41.92 91.3 41.93L99.29 36.36C100 35.85 100.49 35.07 100.63 34.2C100.78 33.33 100.58 32.44 100.08 31.72L86.16 11.88ZM89.07 66.26L86.16 65.85V78.93L89.06 78.53C90.54 78.31 91.9 77.57 92.89 76.44C93.88 75.32 94.44 73.88 94.47 72.38C94.46 70.88 93.91 69.44 92.92 68.31C91.92 67.19 90.56 66.46 89.07 66.26ZM17.58 97.3C17.58 97.85 17.36 98.38 16.97 98.77C16.58 99.16 16.05 99.37 15.5 99.37C14.95 99.37 14.42 99.16 14.03 98.77C13.64 98.38 13.42 97.85 13.42 97.3V88.67C11.92 88.37 10.5 87.74 9.27 86.82V99.18C9.28 100.67 9.83 102.11 10.81 103.23C11.8 104.35 13.16 105.08 14.64 105.27L92.11 115.98C92.4 116.02 92.7 116 92.99 115.91C93.28 115.83 93.54 115.68 93.77 115.48C93.99 115.3 94.17 115.06 94.29 114.8C94.41 114.54 94.47 114.25 94.47 113.96V101.7C94.47 101.21 94.28 100.73 93.96 100.36C93.63 99.99 93.18 99.75 92.69 99.68L92.4 99.64V105.61C92.4 106.16 92.18 106.69 91.79 107.08C91.4 107.47 90.87 107.69 90.32 107.69C89.77 107.69 89.24 107.47 88.85 107.08C88.46 106.69 88.24 106.16 88.24 105.61V99.06L84.08 98.48V107.69C84.08 108.24 83.86 108.77 83.47 109.16C83.09 109.55 82.56 109.77 82.01 109.77C81.45 109.77 80.93 109.55 80.54 109.16C80.15 108.77 79.93 108.24 79.93 107.69V97.92L75.77 97.34V103.53C75.77 104.08 75.55 104.61 75.16 105C74.77 105.39 74.24 105.61 73.69 105.61C73.14 105.61 72.61 105.39 72.22 105C71.83 104.61 71.61 104.08 71.61 103.53V96.76L67.46 96.19V103.53C67.46 104.08 67.24 104.61 66.85 105C66.46 105.39 65.93 105.61 65.38 105.61C64.83 105.61 64.3 105.39 63.91 105C63.52 104.61 63.3 104.08 63.3 103.53V95.61L59.14 95.04V99.37C59.14 99.93 58.93 100.45 58.54 100.84C58.15 101.23 57.62 101.45 57.07 101.45C56.52 101.45 55.99 101.23 55.6 100.84C55.21 100.45 54.99 99.93 54.99 99.37V94.46L50.83 93.89V101.45C50.83 102 50.61 102.53 50.22 102.92C49.83 103.31 49.3 103.53 48.75 103.53C48.2 103.53 47.67 103.31 47.28 102.92C46.89 102.53 46.68 102 46.68 101.45V93.31L42.52 92.74V97.3C42.52 97.85 42.3 98.38 41.91 98.77C41.52 99.16 40.99 99.37 40.44 99.37C39.89 99.37 39.36 99.16 38.97 98.77C38.58 98.38 38.36 97.85 38.36 97.3V92.16L34.21 91.59V99.37C34.21 99.93 33.99 100.45 33.6 100.84C33.21 101.23 32.68 101.45 32.13 101.45C31.58 101.45 31.05 101.23 30.66 100.84C30.27 100.45 30.05 99.93 30.05 99.37V91.01L25.89 90.44V93.14C25.89 93.69 25.67 94.22 25.28 94.61C24.89 95 24.37 95.22 23.81 95.22C23.26 95.22 22.73 95 22.34 94.61C21.96 94.22 21.74 93.69 21.74 93.14V89.86L17.58 89.29V97.3Z"/></mask><path d="M50.83 7.93C53.16 8.12 55.47 7.44 57.33 6.02C59.18 4.6 60.44 2.55 60.87 0.25C57.61 1.22 54.23 1.7 50.83 1.7C47.43 1.7 44.05 1.21 40.8 0.24C41.22 2.54 42.48 4.6 44.33 6.02C46.19 7.44 48.5 8.12 50.83 7.93ZM82.01 65.28L19.66 56.66V85.38L82.01 94V65.28ZM9.27 78.57C9.28 80.07 9.83 81.51 10.83 82.64C11.82 83.76 13.18 84.49 14.67 84.69L15.5 84.81V72.31L14.68 72.42C13.2 72.64 11.84 73.38 10.85 74.51C9.86 75.63 9.3 77.07 9.27 78.57ZM12.2 30.85L15.5 31.31V11.88L1.6 31.69C1.34 32.05 1.16 32.45 1.06 32.88C0.96 33.31 0.94 33.75 1.01 34.18C1.08 34.62 1.24 35.03 1.47 35.4C1.71 35.78 2.01 36.1 2.37 36.35L5.11 38.27V36.99C5.11 36.1 5.3 35.23 5.67 34.43C6.03 33.63 6.57 32.91 7.23 32.33C7.91 31.74 8.7 31.31 9.56 31.05C10.41 30.8 11.32 30.73 12.2 30.85ZM84.08 53.65C84.08 54.2 83.86 54.73 83.47 55.12C83.09 55.51 82.56 55.73 82.01 55.73C81.45 55.73 80.93 55.51 80.54 55.12C80.15 54.73 79.93 54.2 79.93 53.65V44.41L75.77 43.83V49.5C75.77 50.05 75.55 50.58 75.16 50.97C74.77 51.36 74.24 51.57 73.69 51.57C73.14 51.57 72.61 51.36 72.22 50.97C71.83 50.58 71.61 50.05 71.61 49.5V43.26L67.46 42.69V49.5C67.46 50.05 67.24 50.58 66.85 50.97C66.46 51.36 65.93 51.57 65.38 51.57C64.83 51.57 64.3 51.36 63.91 50.97C63.52 50.58 63.3 50.05 63.3 49.5V42.11L59.14 41.54V45.34C59.14 45.89 58.93 46.42 58.54 46.81C58.15 47.2 57.62 47.42 57.07 47.42C56.52 47.42 55.99 47.2 55.6 46.81C55.21 46.42 54.99 45.89 54.99 45.34V40.96L50.83 40.39V47.42C50.83 47.97 50.61 48.5 50.22 48.89C49.83 49.28 49.3 49.5 48.75 49.5C48.2 49.5 47.67 49.28 47.28 48.89C46.89 48.5 46.68 47.97 46.68 47.42V39.81L42.52 39.24V43.26C42.52 43.81 42.3 44.34 41.91 44.73C41.52 45.12 40.99 45.34 40.44 45.34C39.89 45.34 39.36 45.12 38.97 44.73C38.58 44.34 38.36 43.81 38.36 43.26V38.66L34.21 38.09V45.34C34.21 45.89 33.99 46.42 33.6 46.81C33.21 47.2 32.68 47.42 32.13 47.42C31.58 47.42 31.05 47.2 30.66 46.81C30.27 46.42 30.05 45.89 30.05 45.34V37.51L25.89 36.94V39.11C25.89 39.66 25.67 40.19 25.28 40.57C24.89 40.96 24.37 41.18 23.81 41.18C23.26 41.18 22.73 40.96 22.34 40.57C21.96 40.19 21.74 39.66 21.74 39.11V36.37L17.58 35.79V43.26C17.58 43.81 17.36 44.34 16.97 44.73C16.58 45.12 16.05 45.34 15.5 45.34C14.95 45.34 14.42 45.12 14.03 44.73C13.64 44.34 13.42 43.81 13.42 43.26V35.22L11.64 34.97C11.54 34.96 11.44 34.95 11.35 34.95C10.84 34.95 10.35 35.13 9.97 35.46C9.75 35.65 9.57 35.88 9.45 36.15C9.33 36.41 9.27 36.7 9.27 36.99V49.25C9.27 49.74 9.46 50.22 9.78 50.59C10.11 50.96 10.56 51.2 11.05 51.27L89.63 62.13C91.39 62.37 93.06 63.06 94.47 64.13V51.77C94.47 50.9 94.28 50.05 93.92 49.27C93.57 48.48 93.05 47.78 92.4 47.21V51.57C92.4 52.13 92.18 52.65 91.79 53.04C91.4 53.43 90.87 53.65 90.32 53.65C89.77 53.65 89.24 53.43 88.85 53.04C88.46 52.65 88.24 52.13 88.24 51.57V45.56L84.08 44.98V53.65ZM86.16 11.88V41.07L89.67 41.56C90.06 41.63 90.44 41.71 90.82 41.82C90.93 41.84 91.04 41.87 91.15 41.9C91.2 41.91 91.25 41.92 91.3 41.93L99.29 36.36C100 35.85 100.49 35.07 100.63 34.2C100.78 33.33 100.58 32.44 100.08 31.72L86.16 11.88ZM89.07 66.26L86.16 65.85V78.93L89.06 78.53C90.54 78.31 91.9 77.57 92.89 76.44C93.88 75.32 94.44 73.88 94.47 72.38C94.46 70.88 93.91 69.44 92.92 68.31C91.92 67.19 90.56 66.46 89.07 66.26ZM17.58 97.3C17.58 97.85 17.36 98.38 16.97 98.77C16.58 99.16 16.05 99.37 15.5 99.37C14.95 99.37 14.42 99.16 14.03 98.77C13.64 98.38 13.42 97.85 13.42 97.3V88.67C11.92 88.37 10.5 87.74 9.27 86.82V99.18C9.28 100.67 9.83 102.11 10.81 103.23C11.8 104.35 13.16 105.08 14.64 105.27L92.11 115.98C92.4 116.02 92.7 116 92.99 115.91C93.28 115.83 93.54 115.68 93.77 115.48C93.99 115.3 94.17 115.06 94.29 114.8C94.41 114.54 94.47 114.25 94.47 113.96V101.7C94.47 101.21 94.28 100.73 93.96 100.36C93.63 99.99 93.18 99.75 92.69 99.68L92.4 99.64V105.61C92.4 106.16 92.18 106.69 91.79 107.08C91.4 107.47 90.87 107.69 90.32 107.69C89.77 107.69 89.24 107.47 88.85 107.08C88.46 106.69 88.24 106.16 88.24 105.61V99.06L84.08 98.48V107.69C84.08 108.24 83.86 108.77 83.47 109.16C83.09 109.55 82.56 109.77 82.01 109.77C81.45 109.77 80.93 109.55 80.54 109.16C80.15 108.77 79.93 108.24 79.93 107.69V97.92L75.77 97.34V103.53C75.77 104.08 75.55 104.61 75.16 105C74.77 105.39 74.24 105.61 73.69 105.61C73.14 105.61 72.61 105.39 72.22 105C71.83 104.61 71.61 104.08 71.61 103.53V96.76L67.46 96.19V103.53C67.46 104.08 67.24 104.61 66.85 105C66.46 105.39 65.93 105.61 65.38 105.61C64.83 105.61 64.3 105.39 63.91 105C63.52 104.61 63.3 104.08 63.3 103.53V95.61L59.14 95.04V99.37C59.14 99.93 58.93 100.45 58.54 100.84C58.15 101.23 57.62 101.45 57.07 101.45C56.52 101.45 55.99 101.23 55.6 100.84C55.21 100.45 54.99 99.93 54.99 99.37V94.46L50.83 93.89V101.45C50.83 102 50.61 102.53 50.22 102.92C49.83 103.31 49.3 103.53 48.75 103.53C48.2 103.53 47.67 103.31 47.28 102.92C46.89 102.53 46.68 102 46.68 101.45V93.31L42.52 92.74V97.3C42.52 97.85 42.3 98.38 41.91 98.77C41.52 99.16 40.99 99.37 40.44 99.37C39.89 99.37 39.36 99.16 38.97 98.77C38.58 98.38 38.36 97.85 38.36 97.3V92.16L34.21 91.59V99.37C34.21 99.93 33.99 100.45 33.6 100.84C33.21 101.23 32.68 101.45 32.13 101.45C31.58 101.45 31.05 101.23 30.66 100.84C30.27 100.45 30.05 99.93 30.05 99.37V91.01L25.89 90.44V93.14C25.89 93.69 25.67 94.22 25.28 94.61C24.89 95 24.37 95.22 23.81 95.22C23.26 95.22 22.73 95 22.34 94.61C21.96 94.22 21.74 93.69 21.74 93.14V89.86L17.58 89.29V97.3Z" fill="#9CD2FF" stroke="url(#paint1_linear_80_15469)" stroke-width="2" mask="url(#path-2-inside-1_80_15469)"/><defs><linearGradient id="paint0_linear_80_15469" x1="28.68" y1="2.02" x2="48" y2="51.48" gradientUnits="userSpaceOnUse"><stop stop-color="#BDE1FF"/><stop offset="1" stop-color="#BDE1FF" stop-opacity="0"/></linearGradient><linearGradient id="paint1_linear_80_15469" x1="15.38" y1="6.02" x2="91.85" y2="115.56" gradientUnits="userSpaceOnUse"><stop stop-color="#BDE1FF"/><stop offset="1" stop-color="#BDE1FF" stop-opacity="0"/></linearGradient></defs>
-  </svg>
-    
-<h2>Опис</h2>
-    <!-- 📝 Тут можна змінити номер версії -->
-    <p>версія 1.0.5</p>
+  <!-- ===== SPLASH SCREEN =====
+       - Щоб змінити іконку сплешу, відредагуй SVG у div.icon нижче.
+       - Щоб змінити градієнт, відредагуй CSS background у #splash.
+       - Щоб змінити версію, змінюй змінну APP_VERSION у скрипті (і вона автоматично потягнеться сюди).
+  -->
+  <div id="splash" role="dialog" aria-hidden="false">
+    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- Замінити тут SVG-іконку, якщо треба -->
+      <path d="m21.72 10.13-2.29 2.3c-.39.39-1.03.39-1.42 0l-.01-.02V18c0 1.65-1.35 3-3 3H9c-1.65 0-3-1.35-3-3v-5.59l-.01.02c-.39.39-1.03.39-1.42 0l-2.29-2.3c-.78-.78-.78-2.04 0-2.82l4.01-4.02C6.48 3.11 6.73 3 7 3h2c.31 0 .61.15.8.4.52.7 1.33 1.1 2.2 1.1s1.68-.4 2.2-1.1c.19-.25.49-.4.8-.4h2c.27 0 .52.11.71.29l4.01 4.02c.78.78.78 2.04 0 2.82z" fill="#ffffff" opacity="1" data-original="#000000" class=""></path>
+    </svg>
+    <h2>Опис</h2>
+    <div class="ver">версія <span id="appVersion">1.1</span></div>
   </div>
 
-  <h1>Опис 1.0</h1>
+  <!-- Заголовок -->
+  <h1>Опис 1.1</h1>
 
+  <!-- ФОРМА -->
   <div class="form-section">
-    <label for="price">Ціна 💸</label>
-    <input type="text" id="price" placeholder="100 грн" />
-  </div>
-
-  <div class="form-section">
-    <label for="brand">Бренд</label>
-    <input type="text" id="brand" placeholder="Введіть бренд" />
-  </div>
-
-  <div class="form-section">
-    <label for="description">Опис</label>
-    <input type="text" id="description" placeholder="Короткий опис товару" />
+    <label class="section" for="price">Ціна 💸</label>
+    <input id="price" type="text" placeholder="Вкажіть ціну, напр. 450 грн" />
   </div>
 
   <div class="form-section">
-    <label>Стан</label>
+    <label class="section" for="brand">Бренд</label>
+    <div class="autocomplete-wrap">
+      <input id="brand" type="text" placeholder="Почніть вводити бренд..." autocomplete="off" />
+      <div id="brandSuggestions" class="suggestions" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <label class="section" for="descInput">Опис</label>
+    <input id="descInput" type="text" placeholder="Короткий опис у 1 реченні" />
+  </div>
+
+  <div class="form-section">
+    <label class="section">Стан</label>
     <div class="radio-group">
-      <label><input type="radio" name="condition" value="Стан чудовий"> Чудовий</label>
-      <label><input type="radio" name="condition" value="Стан дуже хороший"> Дуже хороший</label>
+      <label><input name="condition" type="radio" value="Стан чудовий" checked /> Чудовий</label>
+      <label><input name="condition" type="radio" value="Стан дуже хороший" /> Дуже хороший</label>
     </div>
   </div>
 
-  <hr>
+  <hr />
 
   <div class="form-section">
-    <label>Розмір</label>
+    <label class="section">Розмір</label>
     <div class="size-group">
-      <label><input type="checkbox" value="XS"> XS</label>
-      <label><input type="checkbox" value="S"> S</label>
-      <label><input type="checkbox" value="M"> M</label>
-      <label><input type="checkbox" value="L"> L</label>
-      <label><input type="checkbox" value="XL"> XL</label>
-      <label><input type="checkbox" value="XXL"> XXL</label>
+      <label><input class="size-chk" type="checkbox" value="XS" /> XS</label>
+      <label><input class="size-chk" type="checkbox" value="S" /> S</label>
+      <label><input class="size-chk" type="checkbox" value="M" /> M</label>
+      <label><input class="size-chk" type="checkbox" value="L" /> L</label>
+      <label><input class="size-chk" type="checkbox" value="XL" /> XL</label>
+      <label><input class="size-chk" type="checkbox" value="XXL" /> XXL</label>
     </div>
   </div>
 
-  <hr>
+  <hr />
 
   <div class="form-section">
-    <label>Категорія</label>
-    <div class="category-group">
-      <label><input type="radio" name="category" value="sweater"> Светр</label>
-      <label><input type="radio" name="category" value="pants"> Штани</label>
-      <label><input type="radio" name="category" value="skirt"> Спідниця</label>
-      <label><input type="radio" name="category" value="tshirt"> Футболка</label>
-      <label><input type="radio" name="category" value="outerwear"> Верхній одяг</label>
+    <label class="section">Категорія</label>
+    <div id="categoryGroup" class="category-group">
+      <div class="category-pill" data-cat="sweater">Светр</div>
+      <div class="category-pill" data-cat="pants">Штани</div>
+      <div class="category-pill" data-cat="skirt">Спідниця</div>
+      <div class="category-pill" data-cat="tshirt">Футболка</div>
+      <div class="category-pill" data-cat="outerwear">Верхній одяг</div>
     </div>
+
+    <div id="categoryFieldsContainer"></div>
   </div>
 
-  <div id="category-fields"></div>
-
-  <hr>
+  <hr />
 
   <div class="form-section">
-    <label>Матеріал</label>
-    <div class="material-group">
-      <label><input type="checkbox" value="бавовна"> Бавовна</label>
-      <label><input type="checkbox" value="віскоза"> Віскоза</label>
-      <label><input type="checkbox" value="еластан"> Еластан</label>
-      <label><input type="checkbox" value="вовна"> Вовна</label>
-      <label><input type="checkbox" value="кашемір"> Кашемір</label>
-      <label><input type="checkbox" value="нейлон"> Нейлон</label>
-      <label><input type="checkbox" value="поліамід"> Поліамід</label>
-      <label><input type="checkbox" value="акрил"> Акрил</label>
+    <label class="section">Матеріал</label>
+    <div class="materials">
+      <label><input type="checkbox" value="бавовна" /> Бавовна</label>
+      <label><input type="checkbox" value="віскоза еластан" /> Віскоза Еластан</label>
+      <label><input type="checkbox" value="вовна" /> Вовна</label>
+      <label><input type="checkbox" value="кашемір" /> Кашемір</label>
+      <label><input type="checkbox" value="нейлон" /> Нейлон</label>
+      <label><input type="checkbox" value="поліамід" /> Поліамід</label>
+      <label><input type="checkbox" value="акрил" /> Акрил</label>
     </div>
-    <input type="text" id="materialCustom" placeholder="Інший матеріал" />
+    <div style="margin-top:8px;">
+      <input id="materialCustom" type="text" placeholder="Інший матеріал" />
+    </div>
   </div>
 
+  <!-- Кнопки: Генерувати / Копіювати / Зберегти -->
   <div class="actions">
-    <button class="generate-btn" onclick="generate()">Генерувати</button>
-    <button class="copy-btn" onclick="copyText()">Копіювати</button>
+    <button class="btn generate" onclick="onGenerate()">Генерувати</button>
+    <button class="btn copy" onclick="copyMain()">Копіювати</button>
+    <button class="btn save" onclick="onSave()">Зберегти</button>
   </div>
 
-  <textarea id="output" class="generated-output" readonly></textarea>
+  <!-- Поле результату (автопідігнана висота) -->
+  <textarea id="output" readonly></textarea>
 
-  <div class="clear-btn" onclick="clearForm()">
-    <svg viewBox="0 0 24 24">
+  <!-- Список збережених (акордеони) -->
+  <div id="savedList"></div>
+
+  <!-- Плаваюча кнопка Очистити -->
+  <div class="clear-fab" title="Очистити" onclick="clearForm()">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M3 6h18v2H3V6zm2 3h14l-1.5 12.5a1 1 0 0 1-1 .5H7.5a1 1 0 0 1-1-.5L5 9zm5 2v8h2v-8H10zm4 0v8h2v-8h-2z"/>
     </svg>
   </div>
 
   <script>
+    /**************************************************************************
+     * Конфіг (змінюй при потребі)
+     * - APP_VERSION: версія (відобразиться у сплеші і може використовуватись де інде)
+     * - DELETE_SVG: SVG для кнопки 'видалити' (ми зберегли твій SVG — при необхідності встав просто іншу рядкову змінну)
+     **************************************************************************/
+    const APP_VERSION = "1.1";
+    document.getElementById("appVersion").textContent = APP_VERSION;
+
+    // Іконка "Х" яку ти попросив зберегти — використовується в кнопці видалити
+    // (якщо хочеш — заміни цю рядкову константу на інший SVG)
+    const DELETE_SVG = `<svg fill="#000000" width="18" height="18" viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg" class="cf-icon-svg"><path d="M11.383 13.644A1.03 1.03 0 0 1 9.928 15.1L6 11.172 2.072 15.1a1.03 1.03 0 1 1-1.455-1.456l3.928-3.928L.617 5.79a1.03 1.03 0 1 1 1.455-1.456L6 8.261l3.928-3.928a1.03 1.03 0 0 1 1.455 1.456L7.455 9.716z"/></svg>`;
+
+    /**************************************************************************
+     * Список брендів (autocomplete). При необхідності додавай/редагуй назви.
+     **************************************************************************/
+    const BRANDS = [
+      "ZARA","H&M","M&S","George","Primark","F&F","Stradivarius","Bershka","Pull & Bear",
+      "COS","Arket","Massimo Dutty","Next","New Look","& Other Stories","Mango","ASOS",
+      "Topshop","Monki","Reiss","Autograph","Hugo Boss","Cashmere","Woolmark","Ralph Lauren",
+      "Max Mara","Only","C&A"
+    ];
+
+    /**************************************************************************
+     * SPLASH: плавне ховання + fallback
+     **************************************************************************/
+    window.addEventListener("load", () => {
+      setTimeout(hideSplash, 700);
+    });
+    setTimeout(() => { if (document.getElementById("splash")) hideSplash(); }, 6000);
+    function hideSplash(){
+      const s = document.getElementById("splash");
+      if (!s) return;
+      s.style.opacity = "0";
+      setTimeout(()=> s.remove(), 480);
+    }
+
+    /**************************************************************************
+     * CATEGORY fields rendering
+     **************************************************************************/
     const categoryFields = {
-      sweater: ["груди", "низ", "рукав", "довжина"],
-      pants: ["пояс", "стегна", "посадка", "довжина", "низ"],
-      skirt: ["пояс", "стегна", "довжина"],
-      tshirt: ["груди", "низ", "довжина"],
-      outerwear: ["плечі", "груди", "низ", "рукав", "довжина"]
+      sweater: ["по груди", "по низу", "рукав", "довжина"],
+      pants: ["по пояс", "по стегна", "пос.", "довжина", "ширина внизу"],
+      skirt: ["по пояс", "по стегна", "довжина"],
+      tshirt: ["по груди", "по низу", "довжина"],
+      outerwear: ["плечі", "по груди", "по низу", "рукав", "довжина"]
     };
 
-    function renderCategoryFields(category) {
-      const container = document.getElementById("category-fields");
-      container.innerHTML = "";
-      if (!category) return;
+    const categoryGroup = document.getElementById("categoryGroup");
+    const catFieldsContainer = document.getElementById("categoryFieldsContainer");
+    let activeCategory = null;
 
-      const grid = document.createElement("div");
-      grid.className = "grid";
+    categoryGroup.addEventListener("click", (e)=>{
+      const pill = e.target.closest(".category-pill");
+      if (!pill) return;
+      const cat = pill.dataset.cat;
+      // підсвітити
+      [...categoryGroup.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      activeCategory = cat;
+      renderCategoryFields(cat);
+    });
 
-      categoryFields[category].forEach(field => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "grid-item";
-        const label = document.createElement("label");
-        label.textContent = field;
-        const input = document.createElement("input");
-        input.type = "text";
-        input.dataset.label = field;
-        wrapper.appendChild(label);
-        wrapper.appendChild(input);
-        grid.appendChild(wrapper);
+    function renderCategoryFields(cat){
+      catFieldsContainer.innerHTML = "";
+      if (!cat || !categoryFields[cat]) return;
+      const wrapper = document.createElement("div");
+      wrapper.className = "cat-fields";
+      categoryFields[cat].forEach(field=>{
+        const row = document.createElement("div");
+        row.className = "cat-row";
+        const lbl = document.createElement("label");
+        lbl.textContent = field;
+        const inp = document.createElement("input");
+        inp.type = "text";
+        inp.dataset.field = field;
+        inp.placeholder = "";
+        row.appendChild(lbl);
+        row.appendChild(inp);
+        wrapper.appendChild(row);
       });
+      // чекбокс для "рукав від горловини" окремо під полями
+      if (cat === "sweater" || cat === "outerwear"){
+        const cbRow = document.createElement("div");
+        cbRow.className = "from-neck";
+        cbRow.innerHTML = `<label><input id="fromNeck" type="checkbox"> Рукав від горловини</label>`;
+        wrapper.appendChild(cbRow);
+      }
+      catFieldsContainer.appendChild(wrapper);
+    }
 
-      container.appendChild(grid);
+    /**************************************************************************
+     * AUTOCOMPLETE for BRAND
+     **************************************************************************/
+    const brandInput = document.getElementById("brand");
+    const suggestionsEl = document.getElementById("brandSuggestions");
+    let suggestionIndex = -1;
+    let currentSuggestions = [];
 
-      if (category === "sweater" || category === "outerwear") {
-        const cb = document.createElement("div");
-        cb.className = "form-section";
-        cb.innerHTML = `<label><input type="checkbox" id="fromNeck"> Рукав від горловини</label>`;
-        container.appendChild(cb);
+    brandInput.addEventListener("input", onBrandInput);
+    brandInput.addEventListener("keydown", onBrandKeyDown);
+    brandInput.addEventListener("blur", ()=> setTimeout(()=> suggestionsEl.style.display='none', 150) );
+
+    function onBrandInput(e){
+      const val = e.target.value.trim().toLowerCase();
+      if (!val){ suggestionsEl.style.display='none'; currentSuggestions=[]; suggestionIndex=-1; return; }
+      // фільтруємо (case-insensitive, шукаємо підрядок)
+      currentSuggestions = BRANDS.filter(b => b.toLowerCase().includes(val));
+      // сортуємо так, щоб ті що починаються з введеного — були зверху
+      currentSuggestions.sort((a,b)=>{
+        const av = a.toLowerCase(), bv = b.toLowerCase();
+        const startsA = av.startsWith(val), startsB = bv.startsWith(val);
+        if (startsA && !startsB) return -1;
+        if (!startsA && startsB) return 1;
+        return a.localeCompare(b);
+      });
+      renderBrandSuggestions();
+    }
+
+    function renderBrandSuggestions(){
+      suggestionsEl.innerHTML = "";
+      if (!currentSuggestions.length){ suggestionsEl.style.display='none'; return; }
+      currentSuggestions.forEach((s, i)=>{
+        const div = document.createElement("div");
+        div.className = "suggestion";
+        div.textContent = s;
+        if (i === suggestionIndex) div.classList.add("active");
+        div.addEventListener("mousedown", (ev)=>{
+          // mousedown замість click — щоб не втратити фокус до blur
+          brandInput.value = s;
+          suggestionsEl.style.display = "none";
+          suggestionIndex = -1;
+        });
+        suggestionsEl.appendChild(div);
+      });
+      suggestionsEl.style.display = "block";
+    }
+
+    function onBrandKeyDown(e){
+      if (suggestionsEl.style.display === "none") return;
+      if (e.key === "ArrowDown"){
+        e.preventDefault();
+        suggestionIndex = Math.min(suggestionIndex+1, currentSuggestions.length-1);
+        renderBrandSuggestions();
+      } else if (e.key === "ArrowUp"){
+        e.preventDefault();
+        suggestionIndex = Math.max(suggestionIndex-1, 0);
+        renderBrandSuggestions();
+      } else if (e.key === "Enter"){
+        e.preventDefault();
+        if (suggestionIndex >= 0 && currentSuggestions[suggestionIndex]){
+          brandInput.value = currentSuggestions[suggestionIndex];
+          suggestionsEl.style.display = "none";
+          suggestionIndex = -1;
+        }
+      } else if (e.key === "Escape"){
+        suggestionsEl.style.display = "none";
+        suggestionIndex = -1;
       }
     }
 
-    document.querySelectorAll('input[name="category"]').forEach(r => {
-      r.addEventListener("change", e => renderCategoryFields(e.target.value));
-    });
+    /**************************************************************************
+     * AUTOSIZE textarea helper
+     **************************************************************************/
+    function autosizeTextarea(el){
+      if (!el) return;
+      el.style.height = "auto";
+      const sh = el.scrollHeight;
+      el.style.height = Math.max(160, sh) + "px";
+    }
 
-    function generate() {
+    // автопідгонка стартова
+    autosizeTextarea(document.getElementById("output"));
+    document.getElementById("output").addEventListener("input", e => autosizeTextarea(e.target));
+
+    /**************************************************************************
+     * BUILD result text
+     **************************************************************************/
+    function buildResultText(){
       const price = document.getElementById("price").value.trim();
       const brand = document.getElementById("brand").value.trim();
-      const description = document.getElementById("description").value.trim();
-      const condition = document.querySelector('input[name="condition"]:checked')?.value || "";
-      const sizes = [...document.querySelectorAll('.size-group input:checked')].map(cb => cb.value).join("/");
-      const category = document.querySelector('input[name="category"]:checked')?.value;
-      let fields = "";
-      if (category) {
-        document.querySelectorAll("#category-fields input[type=text]").forEach(inp => {
-          if (inp.value.trim()) {
-            fields += `${inp.dataset.label} ${inp.value.trim()}\n`;
+      const desc = document.getElementById("descInput").value.trim();
+      const condition = (document.querySelector('input[name="condition"]:checked') || {}).value || "";
+      const sizes = Array.from(document.querySelectorAll('.size-group input:checked')).map(i=>i.value);
+      let text = "";
+      if (price) text += `💸Ціна ${price}\n`;
+      if (brand) text += `${brand}\n`;
+      if (desc) text += `${desc}\n`;
+      if (condition) text += `${condition}\n`;
+      text += "—————————\n";
+      if (sizes.length) text += `розмір ${sizes.join("/")}\n`;
+
+      // category-specific fields
+      if (activeCategory){
+        const inputs = [...document.querySelectorAll('#categoryFieldsContainer input[data-field]')];
+        inputs.forEach(inp=>{
+          if (inp.value.trim()){
+            text += `${inp.dataset.field} ${inp.value.trim()}\n`;
           }
         });
-        if (document.getElementById("fromNeck")?.checked) {
-          fields = fields.replace("рукав", "рукав від горловини");
+        // if fromNeck checked, replace first occurrence of 'рукав ' into 'рукав від горловини '
+        const fromNeck = document.getElementById("fromNeck");
+        if (fromNeck && fromNeck.checked){
+          text = text.replace(/(рукав\s+)/, "рукав від горловини ");
         }
       }
-      const materials = [...document.querySelectorAll('.material-group input:checked')].map(cb => cb.value);
+
+      text += "—————————\n";
+      const materials = Array.from(document.querySelectorAll('.materials input:checked')).map(i=>i.value);
       const customMat = document.getElementById("materialCustom").value.trim();
       if (customMat) materials.push(customMat);
-      const materialsStr = materials.join("/");
+      if (materials.length) text += materials.join("/") + "\n";
 
-      let output = "";
-      if (price) output += `💸Ціна ${price}\n`;
-      if (brand) output += `${brand}\n`;
-      if (description) output += `${description}\n`;
-      if (condition) output += `${condition}\n`;
-      output += `—————————\n`;
-      if (sizes) output += `розмір ${sizes}\n`;
-      if (fields) output += `${fields}`;
-      output += `—————————\n`;
-      if (materialsStr) output += `${materialsStr}`;
-
-      document.getElementById("output").value = output;
+      return text.trim();
     }
 
-    function copyText() {
-      const output = document.getElementById("output");
-      output.select();
-      output.setSelectionRange(0, 99999);
-      navigator.clipboard.writeText(output.value).catch(() => {});
+    function onGenerate(){
+      const out = document.getElementById("output");
+      out.value = buildResultText();
+      autosizeTextarea(out);
     }
 
-    function clearForm() {
-      document.querySelectorAll("input[type=text]").forEach(inp => inp.value = "");
-      document.querySelectorAll("input[type=radio], input[type=checkbox]").forEach(inp => inp.checked = false);
-      document.getElementById("category-fields").innerHTML = "";
+    function copyMain(){
+      const out = document.getElementById("output");
+      if (!out.value) return;
+      copyToClipboard(out.value);
+    }
+
+    function copyToClipboard(text){
+      if (!text) return;
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).catch(()=> fallbackCopy(text));
+      } else fallbackCopy(text);
+    }
+    function fallbackCopy(text){
+      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch(e){}
+      ta.remove();
+    }
+
+    /**************************************************************************
+     * SAVE (додавання акордеону у список)
+     **************************************************************************/
+    function onSave(){
+      const text = buildResultText();
+      if (!text.trim()) return alert("Немає тексту для збереження.");
+      const title = document.getElementById("descInput").value.trim() || "Без назви";
+      addSavedItem(title, text);
+      // очистимо інпути, але збережемо список
+      clearFormInputsKeepingSaved();
+    }
+
+    function addSavedItem(title, text){
+      const list = document.getElementById("savedList");
+      const item = document.createElement("div"); item.className = "saved-item";
+      const header = document.createElement("div"); header.className = "saved-header";
+      const titleEl = document.createElement("div"); titleEl.className = "saved-title"; titleEl.textContent = title;
+      const controls = document.createElement("div"); controls.className = "saved-controls";
+
+      // COPY button (clipboard)
+      const copyBtn = document.createElement("button"); copyBtn.className = "icon-btn"; copyBtn.title = "Копіювати";
+      copyBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4a1 1 0 0 0-1 1v14h2V3h11V1zm3 4H8a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zm-1 16H9V7h9v14z"/></svg>`;
+
+      // DELETE button - тут вставляємо твій SVG "Х" (DELETE_SVG константа)
+      const delBtn = document.createElement("button"); delBtn.className = "icon-btn"; delBtn.title = "Видалити";
+      delBtn.innerHTML = DELETE_SVG;
+
+      controls.appendChild(copyBtn);
+      controls.appendChild(delBtn);
+
+      header.appendChild(titleEl);
+      header.appendChild(controls);
+
+      const body = document.createElement("div"); body.className = "saved-body"; body.textContent = text;
+
+      // header click toggles body, but ignore clicks on control buttons
+      header.addEventListener("click", (ev)=>{
+        if (ev.target.closest(".icon-btn")) return;
+        const visible = body.style.display === "block";
+        body.style.display = visible ? "none" : "block";
+      });
+
+      copyBtn.addEventListener("click", (ev)=>{
+        ev.stopPropagation();
+        copyToClipboard(text);
+      });
+
+      delBtn.addEventListener("click", (ev)=>{
+        ev.stopPropagation();
+        if (confirm("Видалити цей збережений опис?")) item.remove();
+      });
+
+      item.appendChild(header);
+      item.appendChild(body);
+      list.prepend(item);
+    }
+
+    /**************************************************************************
+     * CLEAR / reset utilities
+     **************************************************************************/
+    function clearForm(){
+      document.querySelectorAll("input[type=text], input[type=number]").forEach(i => i.value = "");
+      document.querySelectorAll("input[type=radio], input[type=checkbox]").forEach(i => i.checked = false);
+      document.getElementById("categoryFieldsContainer").innerHTML = "";
       document.getElementById("output").value = "";
+      autosizeTextarea(document.getElementById("output"));
+      [...document.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
+      activeCategory = null;
+      // close suggestions
+      document.getElementById("brandSuggestions").style.display = "none";
     }
 
-// ВСТАВЛЕНО В РУЧНУ
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-      document.getElementById("splash").style.opacity = "0";
-      setTimeout(() => document.getElementById("splash").style.display = "none", 500);
-  }, 1000); // ⏱️ тривалість показу
-  });
+    function clearFormInputsKeepingSaved(){
+      document.querySelectorAll("input[type=text], input[type=number]").forEach(i => i.value = "");
+      document.querySelectorAll("input[type=radio], input[type=checkbox]").forEach(i => i.checked = false);
+      document.getElementById("categoryFieldsContainer").innerHTML = "";
+      autosizeTextarea(document.getElementById("output"));
+      [...document.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
+      activeCategory = null;
+      document.getElementById("brandSuggestions").style.display = "none";
+    }
 
-// fallback — навіть якщо load не спрацює
-      setTimeout(() => {
-      if (document.getElementById("splash").style.display !== "none") {
-      document.getElementById("splash").style.display = "none";
-  }
-  }, 5000);
-// ВСТАВЛЕНО В РУЧНУ КІНЕЦЬ
+    /**************************************************************************
+     * BRAND autocomplete: init suggestions when page loaded to avoid repeated DOM creation
+     **************************************************************************/
+    // (nothing else needed here; brand input listener handles rendering)
 
-    // Приховати сплеш після запуску
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        document.getElementById("splash").style.display = "none";
-      }, 1000); // ⏱️ час показу сплешу (в мс)
+    // keyboard UX nicety: hide suggestions on Escape
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "Escape") document.getElementById("brandSuggestions").style.display = "none";
     });
+
+    // ensure textarea autosize on load
+    autosizeTextarea(document.getElementById("output"));
+
+    /**************************************************************************
+     * Полезний fallback: якщо з якихось причин splash не сховався (старі браузери),
+     * через 6с все одно приберемо його.
+     **************************************************************************/
+    setTimeout(()=>{ const s = document.getElementById("splash"); if (s) s.remove(); }, 6000);
+
   </script>
 </body>
 </html>
