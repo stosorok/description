@@ -1,163 +1,240 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>Опис 1.1</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<title>Опис 1.2</title>
+<link rel="apple-touch-icon" href="icon.png" />
 
-  <!-- =======================
-       ЗАМІНИ icon.png НА СВІЙ ФАЙЛ (якщо потрібно)
-       =======================
-       <link rel="apple-touch-icon" href="icon.png" />
-  -->
-  <link rel="apple-touch-icon" href="icon.png" />
+<style>
+  :root{
+    --green: #48d597;
+    --violet: #b6a9f7;
+    --bg: #eeeeee;
+    --fg: #414141;
+    --white: #ffffff;
+    --muted: #cccccc;
+    --inactive-bg: #eeeeee;
+    --text-color: #414141;
+  }
 
-  <style>
-    :root{
-      --green: #48d597;
-      --violet: #b6a9f7;
-      --fg: #222;
-      --page-bg: #eeeeee;
-      --card-bg: #fff;
-      --gap: 10px;
-    }
+  .pill {
+  display: inline-flex;
+  align-items: center;
+  margin: 3px;
+  cursor: pointer;
+  user-select: none;
+}
 
-    html,body{height:100%;margin:0;padding:10px;background:var(--page-bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--fg);}
-    h1{ text-align:center;margin:6px 0 12px;font-size:20px;font-weight:800; }
+.pill input {
+  display: none;
+}
 
-    label.section{display:block;font-weight:700;margin-bottom:6px;}
-    .form-section{margin-bottom:12px;}
+.pill span {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background-color: var(--inactive-bg);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  transition: 0.2s;
+}
 
-    input[type="text"], input[type="number"], textarea{
-      box-sizing:border-box;padding:8px;border-radius:6px;border:1px solid #ccc;font-size:15px;width:100%;
-      background:var(--card-bg); color:var(--fg);
-    }
+.pill input:checked + span {
+  background-color: var(--green); /* для чекбокса/радио активного */
+  color: #ffffff;
+}
 
-    input[type="checkbox"]{ accent-color: var(--green); }
-    input[type="radio"]{ accent-color: var(--violet); }
+/* Для розмірів, можна зробити фіолетовими замість зелених */
+.sizes .pill input:checked + span {
+  background-color: var(--violet);
+  color: #ffffff;
+}
 
-    .radio-group, .size-group, .materials, .category-group, .actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  html,body{height:100%;margin:0;padding:10px;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:var(--fg);}
 
-    .size-group label, .radio-group label, .materials label { display:flex; align-items:center; gap:6px; cursor:pointer; font-weight:500; }
-    .category-pill { background:var(--violet); color:#fff; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700; user-select:none; }
-    .category-pill.active { background:var(--green); }
+  /* SPLASH */
+  #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;
+    background:linear-gradient(135deg,#fc00ff 0%,#00dbde 100%);color:#fff;transition:opacity .45s;}
+  #splash svg{width:80px;height:80px;margin-bottom:12px;}
+  #splash .s-title{font-weight:800;font-size:22px;margin:0;}
+  #splash .s-ver{position:absolute;bottom:18px;font-size:13px;opacity:0.95;}
 
-    /* Категорія: кожен рядок label + input в один ряд */
-    .cat-fields{margin-top:8px; display:flex; flex-direction:column; gap:8px;}
-    .cat-row{display:flex; gap:12px; align-items:center;}
-    .cat-row label{width:120px; font-weight:600;}
-    .cat-row input{flex:1; padding:7px;}
+  /* LAYOUT */
+  .container{max-width:760px;margin:0 auto;padding:6px;}
+  h1{ text-align:center; margin:6px 0 12px; color:var(--fg); font-size:20px; }
 
-    /* зменшемо відступи на мобільних */
-    @media (max-width:420px){
-      .cat-row label{width:95px;}
-    }
+  label.section{display:block;font-weight:700;margin-bottom:6px;}
+  .form-section{margin-bottom:12px;}
 
-    /* MATERIALS 2 rows wrap */
-    .materials{gap:8px;}
+  input[type="text"], input[type="number"], textarea {
+    width:100%; box-sizing:border-box; padding:8px; border-radius:6px; border:1px solid #ccc; font-size:15px; background:var(--white);
+  }
 
-    /* Дії */
-    .actions{margin-top:8px; gap:10px;}
-    .btn{flex:1;padding:10px;border-radius:8px;border:0;color:#fff;font-weight:800;cursor:pointer;font-size:15px;}
-    .btn.generate{background:var(--green);}
-    .btn.copy{background:var(--violet);}
-    .btn.save{background:#414141;}
+  textarea { min-height:110px; resize:vertical; }
 
-    /* Output textarea - автопідгонка висоти через JS */
-    #output{ min-height:160px; max-height:60vh; overflow:hidden; margin-top:12px; border-radius:8px; }
+  /* inline groups for state/size */
+  .inline { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .inline label { display:flex; align-items:center; gap:6px; font-weight:500; cursor:pointer; }
 
-    /* Saved list (акордеони) */
-    #savedList{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
-    .saved-item{ background:#fff; border-radius:8px; padding:8px; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
-    .saved-header{ display:flex; align-items:center; justify-content:space-between; gap:8px; cursor:pointer; user-select:none; padding:4px 2px; }
-    .saved-title{ font-weight:700; }
-    .saved-controls{ display:flex; gap:8px; }
-    .icon-btn{ width:36px; height:36px; border-radius:8px; background:transparent; border:0; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
-    .icon-btn svg{ width:18px; height:18px; fill:var(--fg); }
+  /* Categories */
+  .category-group{ display:flex; gap:8px; flex-wrap:wrap; }
+  .category-pill{ background:var(--violet); color:#fff; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:700; user-select:none; }
+  .category-pill.active{ background:var(--green); }
 
-    .saved-body{ display:none; white-space:pre-line; margin-top:8px; color:#222; font-size:14px; }
+  .cat-fields{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+  .cat-row{ display:flex; gap:12px; align-items:center; }
+  .cat-row label{ width:120px; margin:0; font-weight:600; }
+  .cat-row input{ flex:1; padding:6px; }
 
-    /* CLEAR FAB */
-    .clear-fab{ position:fixed; right:14px; bottom:14px; width:46px; height:46px; border-radius:10px; background:#222; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:999; }
-    .clear-fab svg{ width:22px; height:22px; fill:#fff; }
+  @media (max-width:420px) { .cat-row label{ width:95px; } }
 
-    /* SPLASH */
-    #splash{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:10000; background: linear-gradient(135deg,#fc00ff 0%,#00dbde 100%); color:#fff; transition:opacity .45s ease; }
-    #splash .icon{ width:72px; height:72px; margin-bottom:12px; }
-    #splash h2{ margin:0; font-size:26px; font-weight:800; }
-    #splash .ver{ position:absolute; bottom:18px; font-size:13px; opacity:0.95; }
+  /* materials wrap */
+  .materials{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .materials label{ width:48%; display:flex; align-items:center; gap:6px; }
 
-    /* AUTOCOMPLETE dropdown */
-    .autocomplete-wrap{ position:relative; }
-    .suggestions{ position:absolute; left:0; right:0; background:#fff; border:1px solid #ccc; border-top:none; z-index:30; max-height:200px; overflow:auto; border-radius:0 0 8px 8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
-    .suggestion{ padding:8px 10px; cursor:pointer; }
-    .suggestion:hover, .suggestion.active{ background:#f3f3f3; }
-  </style>
+  /* ACTIONS */
+  .actions{ display:flex; gap:10px; margin-top:8px; }
+  .btn{ flex:1; padding:10px; border-radius:8px; border:0; color:#fff; font-weight:800; cursor:pointer; background:var(--green); }
+  .btn.secondary{ background:var(--violet); }
+  /* press effect for touch (short darkening) */
+  .btn, .icon-btn, .category-pill {
+    transition: filter .06s, transform .06s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active{ filter:brightness(.85); transform:translateY(1px); }
+  .icon-btn:active{ filter:brightness(.85); transform:translateY(1px); }
+  .category-pill:active{ filter:brightness(.9); transform:translateY(1px); }
+
+  /* OUTPUT */
+  #output{ width:100%; border-radius:8px; padding:8px; box-sizing:border-box; min-height:160px; max-height:60vh; overflow:hidden; resize:none; background:#fff; border:1px solid #ccc; }
+
+  /* saved list / accordion */
+  #savedList{ margin-top:12px; display:flex; flex-direction:column; gap:10px; }
+  .saved-item{ border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.04); border:1px solid #e6e6e6; }
+  .saved-header{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 12px; cursor:pointer; user-select:none;
+    background:var(--violet); color:#fff; font-weight:700;
+  }
+  .saved-header.copied{ background:#cccccc; color:#111; }
+  .saved-body{ padding:10px 12px; background:#fff; color:#222; white-space:pre-line; display:none; }
+
+  .saved-actions{ display:flex; gap:8px; align-items:center; }
+
+  .icon-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding:6px 8px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:#fff; color:var(--fg); cursor:pointer;
+  }
+  .icon-btn img{ width:18px; height:18px; border-radius:6px; display:block; }
+
+  /* delete icon inside header — we use SVG fill:currentColor so color follows header text color */
+  .icon-btn svg{ width:16px; height:16px; display:block; }
+
+  /* Clear (floating) button - restore previous square style (not round gradient) */
+  .fab-clear{
+    position:fixed; right:14px; bottom:14px; width:48px; height:48px; background:#414141; border-radius:10px; display:flex;
+    align-items:center; justify-content:center; z-index:999; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,0.2);
+  }
+  .fab-clear svg{ width:22px; height:22px; fill:#fff; }
+  .fab-clear:active{ filter:brightness(.85); transform:translateY(1px); }
+
+  /* brand suggestions */
+  .autocomplete-wrap{ position:relative; }
+  .suggestions{ position:absolute; left:0; right:0; background:#fff; border:1px solid #ccc; border-top:none; z-index:50; max-height:220px; overflow:auto; border-radius:0 0 8px 8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+  .suggestion{ padding:8px 10px; cursor:pointer; }
+  .suggestion.active, .suggestion:hover{ background:#f3f3f3; }
+
+  /* small helpers */
+  .muted{ color:#666; font-size:13px; }
+  .hidden{ display:none !important; }
+</style>
 </head>
 <body>
-  <!-- ===== SPLASH SCREEN =====
-       - Щоб змінити іконку сплешу, відредагуй SVG у div.icon нижче.
-       - Щоб змінити градієнт, відредагуй CSS background у #splash.
-       - Щоб змінити версію, змінюй змінну APP_VERSION у скрипті (і вона автоматично потягнеться сюди).
-  -->
-  <div id="splash" role="dialog" aria-hidden="false">
-    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <!-- Замінити тут SVG-іконку, якщо треба -->
-      <path d="m21.72 10.13-2.29 2.3c-.39.39-1.03.39-1.42 0l-.01-.02V18c0 1.65-1.35 3-3 3H9c-1.65 0-3-1.35-3-3v-5.59l-.01.02c-.39.39-1.03.39-1.42 0l-2.29-2.3c-.78-.78-.78-2.04 0-2.82l4.01-4.02C6.48 3.11 6.73 3 7 3h2c.31 0 .61.15.8.4.52.7 1.33 1.1 2.2 1.1s1.68-.4 2.2-1.1c.19-.25.49-.4.8-.4h2c.27 0 .52.11.71.29l4.01 4.02c.78.78.78 2.04 0 2.82z" fill="#ffffff" opacity="1" data-original="#000000" class=""></path>
-    </svg>
-    <h2>Опис</h2>
-    <div class="ver">версія <span id="appVersion">1.1</span></div>
-  </div>
 
-  <!-- Заголовок -->
-  <h1>Опис 1.1</h1>
+<!-- SPLASH -->
+<div id="splash" role="dialog" aria-hidden="false">
+  <!-- 🔧 Іконку можна змінити тут -->
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="m21.72 10.13-2.29 2.3c-.39.39-1.03.39-1.42 0l-.01-.02V18c0 1.65-1.35 3-3 3H9c-1.65 0-3-1.35-3-3v-5.59l-.01.02c-.39.39-1.03.39-1.42 0l-2.29-2.3c-.78-.78-.78-2.04 0-2.82l4.01-4.02C6.48 3.11 6.73 3 7 3h2c.31 0 .61.15.8.4.52.7 1.33 1.1 2.2 1.1s1.68-.4 2.2-1.1c.19-.25.49-.4.8-.4h2c.27 0 .52.11.71.29l4.01 4.02c.78.78.78 2.04 0 2.82z" fill="#ffffff"></path>
+  </svg>
+  <div class="s-title">Опис 1.2</div>
+  <div class="s-ver">версія 1.2</div>
+</div>
 
-  <!-- ФОРМА -->
+<div class="container hidden" id="app">
+  <h1>Опис 1.2</h1>
+
+  <!-- Ціна -->
   <div class="form-section">
     <label class="section" for="price">Ціна 💸</label>
-    <input id="price" type="text" placeholder="Вкажіть ціну, напр. 450 грн" />
+    <input id="price" type="number" inputmode="decimal" step="0.01" placeholder="Наприклад: 450">
   </div>
 
+  <!-- Бренд з автодопомогою -->
   <div class="form-section">
     <label class="section" for="brand">Бренд</label>
     <div class="autocomplete-wrap">
       <input id="brand" type="text" placeholder="Почніть вводити бренд..." autocomplete="off" />
-      <div id="brandSuggestions" class="suggestions" style="display:none;"></div>
+      <div id="brandSuggestions" class="suggestions" style="display:none"></div>
     </div>
   </div>
 
+  <!-- Опис -->
   <div class="form-section">
     <label class="section" for="descInput">Опис</label>
     <input id="descInput" type="text" placeholder="Короткий опис у 1 реченні" />
   </div>
 
-  <div class="form-section">
-    <label class="section">Стан</label>
-    <div class="radio-group">
-      <label><input name="condition" type="radio" value="Стан чудовий" checked /> Чудовий</label>
-      <label><input name="condition" type="radio" value="Стан дуже хороший" /> Дуже хороший</label>
-    </div>
-  </div>
+  <!-- Стан -->
+<div class="state">
+  <span>Стан:</span>
+  <label class="pill">
+    <input type="radio" name="state" value="Стан чудовий">
+    <span>Стан чудовий</span>
+  </label>
+  <label class="pill">
+    <input type="radio" name="state" value="Стан дуже хороший">
+    <span>Стан дуже хороший</span>
+  </label>
+</div>
 
-  <hr />
+  <hr>
 
-  <div class="form-section">
-    <label class="section">Розмір</label>
-    <div class="size-group">
-      <label><input class="size-chk" type="checkbox" value="XS" /> XS</label>
-      <label><input class="size-chk" type="checkbox" value="S" /> S</label>
-      <label><input class="size-chk" type="checkbox" value="M" /> M</label>
-      <label><input class="size-chk" type="checkbox" value="L" /> L</label>
-      <label><input class="size-chk" type="checkbox" value="XL" /> XL</label>
-      <label><input class="size-chk" type="checkbox" value="XXL" /> XXL</label>
-    </div>
-  </div>
+  <!-- Розмір -->
 
-  <hr />
+<div class="sizes">
+  <span>Розмір:</span>
+  <label class="pill">
+    <input type="checkbox" value="XS">
+    <span>XS</span>
+  </label>
+  <label class="pill">
+    <input type="checkbox" value="S">
+    <span>S</span>
+  </label>
+  <label class="pill">
+    <input type="checkbox" value="M">
+    <span>M</span>
+  </label>
+  <label class="pill">
+    <input type="checkbox" value="L">
+    <span>L</span>
+  </label>
+  <label class="pill">
+    <input type="checkbox" value="XL">
+    <span>XL</span>
+  </label>
+  <label class="pill">
+    <input type="checkbox" value="XXL">
+    <span>XXL</span>
+  </label>
+</div>
 
+  <hr>
+
+  <!-- Категорії -->
   <div class="form-section">
     <label class="section">Категорія</label>
-    <div id="categoryGroup" class="category-group">
+    <div class="category-group" id="categoryGroup">
       <div class="category-pill" data-cat="sweater">Светр</div>
       <div class="category-pill" data-cat="pants">Штани</div>
       <div class="category-pill" data-cat="skirt">Спідниця</div>
@@ -165,388 +242,424 @@
       <div class="category-pill" data-cat="outerwear">Верхній одяг</div>
     </div>
 
-    <div id="categoryFieldsContainer"></div>
+    <div id="categoryFields" class="cat-fields"></div>
   </div>
 
-  <hr />
+  <hr>
 
-  <div class="form-section">
+  <!-- Матеріали -->
+  <div class="form-section materials">
     <label class="section">Матеріал</label>
-    <div class="materials">
-      <label><input type="checkbox" value="бавовна" /> Бавовна</label>
-      <label><input type="checkbox" value="віскоза еластан" /> Віскоза Еластан</label>
-      <label><input type="checkbox" value="вовна" /> Вовна</label>
-      <label><input type="checkbox" value="кашемір" /> Кашемір</label>
-      <label><input type="checkbox" value="нейлон" /> Нейлон</label>
-      <label><input type="checkbox" value="поліамід" /> Поліамід</label>
-      <label><input type="checkbox" value="акрил" /> Акрил</label>
-    </div>
+    <label><input type="checkbox" value="бавовна"> Бавовна</label>
+    <label><input type="checkbox" value="віскоза"> Віскоза</label>
+    <label><input type="checkbox" value="еластан"> Еластан</label>
+    <label><input type="checkbox" value="вовна"> Вовна</label>
+    <label><input type="checkbox" value="кашемір"> Кашемір</label>
+    <label><input type="checkbox" value="нейлон"> Нейлон</label>
+    <label><input type="checkbox" value="поліамід"> Поліамід</label>
+    <label><input type="checkbox" value="акрил"> Акрил</label>
+    <label><input type="checkbox" value="поліестер"> Поліестер</label>
+    <label><input type="checkbox" value="льон"> Льон</label>
+    <label><input type="checkbox" value="альпака"> Альпака</label>
+    <label><input type="checkbox" value="мохер"> Мохер</label>
+    <label><input type="checkbox" value="меринос"> Меринос</label>
+
     <div style="margin-top:8px;">
-      <input id="materialCustom" type="text" placeholder="Інший матеріал" />
+      <input id="materialCustom" type="text" placeholder="Інший матеріал">
     </div>
   </div>
 
-  <!-- Кнопки: Генерувати / Копіювати / Зберегти -->
-  <div class="actions">
-    <button class="btn generate" onclick="onGenerate()">Генерувати</button>
-    <button class="btn copy" onclick="copyMain()">Копіювати</button>
-    <button class="btn save" onclick="onSave()">Зберегти</button>
+  <!-- Кнопки -->
+  <div class="form-section actions">
+    <button id="btnGenerate" class="btn">Генерувати</button>
+    <button id="btnCopy" class="btn secondary">Копіювати</button>
+    <button id="btnSave" class="btn" style="background:#414141">Зберегти</button>
   </div>
 
-  <!-- Поле результату (автопідігнана висота) -->
-  <textarea id="output" readonly></textarea>
+  <!-- Output -->
+  <div class="form-section">
+    <textarea id="output" readonly></textarea>
+  </div>
 
-  <!-- Список збережених (акордеони) -->
+  <!-- Збережені (акордеони) -->
   <div id="savedList"></div>
 
-  <!-- Плаваюча кнопка Очистити -->
-  <div class="clear-fab" title="Очистити" onclick="clearForm()">
-    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M3 6h18v2H3V6zm2 3h14l-1.5 12.5a1 1 0 0 1-1 .5H7.5a1 1 0 0 1-1-.5L5 9zm5 2v8h2v-8H10zm4 0v8h2v-8h-2z"/>
-    </svg>
+  <div style="margin-top:12px; text-align:center;">
+    <button id="btnClearAll" style="padding:8px 12px; border-radius:8px; border:0; background:var(--green); color:#fff; font-weight:700;">🗑 Видалити все</button>
   </div>
+</div>
 
-  <script>
-    /**************************************************************************
-     * Конфіг (змінюй при потребі)
-     * - APP_VERSION: версія (відобразиться у сплеші і може використовуватись де інде)
-     * - DELETE_SVG: SVG для кнопки 'видалити' (ми зберегли твій SVG — при необхідності встав просто іншу рядкову змінну)
-     **************************************************************************/
-    const APP_VERSION = "1.1";
-    document.getElementById("appVersion").textContent = APP_VERSION;
+<!-- floating clear (previous square style) -->
+<button class="fab-clear" id="fabClear" title="Очистити поля">
+  <!-- метла/сміття була просилась раніше — тут простий метелик/мітла icon -->
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M3 6h18v2H3V6zm2 3h14v12H5V9zm3 2v8h2v-8H8zm4 0v8h2v-8h-2zM9 4V2h6v2h5v2H4V4h5z"/>
+  </svg>
+</button>
 
-    // Іконка "Х" яку ти попросив зберегти — використовується в кнопці видалити
-    // (якщо хочеш — заміни цю рядкову константу на інший SVG)
-    const DELETE_SVG = `<svg fill="#000000" width="18" height="18" viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg" class="cf-icon-svg"><path d="M11.383 13.644A1.03 1.03 0 0 1 9.928 15.1L6 11.172 2.072 15.1a1.03 1.03 0 1 1-1.455-1.456l3.928-3.928L.617 5.79a1.03 1.03 0 1 1 1.455-1.456L6 8.261l3.928-3.928a1.03 1.03 0 0 1 1.455 1.456L7.455 9.716z"/></svg>`;
+<script>
+/* ================= CONFIG ================= */
+const APP_VERSION = "1.2";
+const STORAGE_KEY = "savedDescriptions_v1_2";
+const OLD_KEY = "savedDescriptions_v1_1_1"; // migrate if exists
 
-    /**************************************************************************
-     * Список брендів (autocomplete). При необхідності додавай/редагуй назви.
-     **************************************************************************/
-    const BRANDS = [
-      "ZARA","H&M","M&S","George","Primark","F&F","Stradivarius","Bershka","Pull & Bear",
-      "COS","Arket","Massimo Dutty","Next","New Look","& Other Stories","Mango","ASOS",
-      "Topshop","Monki","Reiss","Autograph","Hugo Boss","Cashmere","Woolmark","Ralph Lauren",
-      "Max Mara","Only","C&A"
-    ];
+// DELETE SVG (user-provided 'X' icon) - set fill to currentColor so it follows header text color
+const DELETE_SVG = `<svg viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;display:block;"><path d="M11.383 13.644A1.03 1.03 0 0 1 9.928 15.1L6 11.172 2.072 15.1a1.03 1.03 0 1 1-1.455-1.456l3.928-3.928L.617 5.79a1.03 1.03 0 1 1 1.455-1.456L6 8.261l3.928-3.928a1.03 1.03 0 0 1 1.455 1.456L7.455 9.716z" fill="currentColor"/></svg>`;
 
-    /**************************************************************************
-     * SPLASH: плавне ховання + fallback
-     **************************************************************************/
-    window.addEventListener("load", () => {
-      setTimeout(hideSplash, 700);
+// Shafa icon URL (for copy-without-price) -> we will embed as <img> in button
+const COPY_NOPRICE_ICON = "https://shafa.c.prom.st/favicon-32x32.png";
+
+/* ================ BRANDS (autocomplete) ================ */
+const BRANDS = [
+  "ZARA","H&M","M&S","George","Primark","F&F","Stradivarius","Bershka",
+  "Pull & Bear","COS","Arket","Massimo Dutty","Next","New Look","& Other Stories",
+  "Mango","ASOS","Topshop","Monki","Reiss","Autograph","Hugo Boss","Cashmere",
+  "Woolmark","Ralph Lauren","Max Mara","Only","C&A"
+];
+
+/* ================ CATEGORY FIELDS & numeric list ================ */
+const categoryFields = {
+  sweater: ["по груди","по низу","рукав","довжина"],
+  pants: ["по пояс","по стегна","посадка","довжина","ширина внизу"],
+  skirt: ["по пояс","по стегна","довжина"],
+  tshirt: ["по груди","по низу","довжина"],
+  outerwear: ["плечі","по груди","по низу","рукав","довжина"]
+};
+
+const numericFields = ["по груди","по низу","рукав","довжина","по пояс","по стегна","посадка","ширина внизу","плечі"];
+
+/* =================== UTIL =================== */
+function $(sel){ return document.querySelector(sel); }
+function $all(sel){ return Array.from(document.querySelectorAll(sel)); }
+
+function autosize(el){
+  if(!el) return;
+  el.style.height = "auto";
+  el.style.height = Math.max(160, el.scrollHeight) + "px";
+}
+
+/* ================= SPLASH HIDE ================= */
+window.addEventListener("load", ()=>{
+  const splash = document.getElementById("splash");
+  setTimeout(()=> {
+    if(splash) splash.style.opacity = "0";
+    setTimeout(()=> {
+      if(splash && splash.parentNode) splash.parentNode.removeChild(splash);
+      document.getElementById("app").classList.remove("hidden");
+    }, 420);
+  }, 700);
+});
+// fallback
+setTimeout(()=>{ const s = document.getElementById("splash"); if(s && s.parentNode){ s.parentNode.removeChild(s); document.getElementById("app").classList.remove("hidden"); } }, 6000);
+
+/* ================= BRAND AUTOCOMPLETE ================= */
+const brandInput = $("#brand");
+const suggestionsEl = $("#brandSuggestions");
+let currentSuggestions = [];
+let suggestionIndex = -1;
+
+brandInput.addEventListener("input", onBrandInput);
+brandInput.addEventListener("keydown", onBrandKeyDown);
+brandInput.addEventListener("blur", ()=> setTimeout(()=> suggestionsEl.style.display='none', 140));
+
+function onBrandInput(e){
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ suggestionsEl.style.display='none'; currentSuggestions=[]; suggestionIndex=-1; return; }
+  currentSuggestions = BRANDS.filter(b => b.toLowerCase().includes(v));
+  currentSuggestions.sort((a,b)=>{
+    const av=a.toLowerCase(), bv=b.toLowerCase();
+    const sa = av.startsWith(v), sb = bv.startsWith(v);
+    if(sa && !sb) return -1;
+    if(!sa && sb) return 1;
+    return a.localeCompare(b);
+  });
+  renderBrandSuggestions();
+}
+function renderBrandSuggestions(){
+  suggestionsEl.innerHTML = "";
+  if(!currentSuggestions.length){ suggestionsEl.style.display='none'; return; }
+  currentSuggestions.forEach((s,i)=>{
+    const div = document.createElement("div");
+    div.className = "suggestion";
+    div.textContent = s;
+    if(i===suggestionIndex) div.classList.add("active");
+    div.addEventListener("mousedown", (ev)=> {
+      brandInput.value = s;
+      suggestionsEl.style.display='none';
+      suggestionIndex = -1;
     });
-    setTimeout(() => { if (document.getElementById("splash")) hideSplash(); }, 6000);
-    function hideSplash(){
-      const s = document.getElementById("splash");
-      if (!s) return;
-      s.style.opacity = "0";
-      setTimeout(()=> s.remove(), 480);
+    suggestionsEl.appendChild(div);
+  });
+  suggestionsEl.style.display = 'block';
+}
+function onBrandKeyDown(e){
+  if(suggestionsEl.style.display === 'none') return;
+  if(e.key === "ArrowDown"){ e.preventDefault(); suggestionIndex = Math.min(suggestionIndex+1, currentSuggestions.length-1); renderBrandSuggestions(); }
+  else if(e.key === "ArrowUp"){ e.preventDefault(); suggestionIndex = Math.max(suggestionIndex-1, 0); renderBrandSuggestions(); }
+  else if(e.key === "Enter"){ e.preventDefault(); if(suggestionIndex>=0 && currentSuggestions[suggestionIndex]){ brandInput.value = currentSuggestions[suggestionIndex]; suggestionsEl.style.display='none'; suggestionIndex=-1; } }
+  else if(e.key === "Escape"){ suggestionsEl.style.display='none'; suggestionIndex=-1; }
+}
+
+/* ================= CATEGORY RENDER ================= */
+const categoryGroup = document.getElementById("categoryGroup");
+const catFieldsContainer = document.getElementById("categoryFields");
+let activeCategory = null;
+
+categoryGroup.addEventListener("click", (ev)=>{
+  const pill = ev.target.closest(".category-pill");
+  if(!pill) return;
+  const cat = pill.dataset.cat;
+  [...categoryGroup.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
+  pill.classList.add("active");
+  activeCategory = cat;
+  renderCategoryFields(cat);
+});
+
+function renderCategoryFields(cat){
+  catFieldsContainer.innerHTML = "";
+  if(!cat || !categoryFields[cat]) return;
+  categoryFields[cat].forEach(field=>{
+    const row = document.createElement("div");
+    row.className = "cat-row";
+    const lbl = document.createElement("label");
+    lbl.textContent = field;
+    const inp = document.createElement("input");
+    if(numericFields.includes(field)){
+      inp.type = "number";
+      inp.inputMode = "numeric";
+      inp.pattern = "[0-9]*";
+    } else {
+      inp.type = "text";
     }
+    inp.dataset.field = field;
+    row.appendChild(lbl);
+    row.appendChild(inp);
+    catFieldsContainer.appendChild(row);
+  });
+  if(cat === "sweater" || cat === "outerwear"){
+    // add "Рукав від горловини" checkbox beneath
+    const cbRow = document.createElement("div");
+    cbRow.className = "cat-row";
+    const spacer = document.createElement("label");
+    spacer.textContent = ""; spacer.style.visibility = "hidden";
+    const cbWrapper = document.createElement("div");
+    cbWrapper.style.display = "flex";
+    cbWrapper.style.alignItems = "center";
+    cbWrapper.innerHTML = `<label style="font-weight:600"><input id="fromNeck" type="checkbox"> Рукав від горловини</label>`;
+    cbRow.appendChild(spacer);
+    cbRow.appendChild(cbWrapper);
+    catFieldsContainer.appendChild(cbRow);
+  }
+}
 
-    /**************************************************************************
-     * CATEGORY fields rendering
-     **************************************************************************/
-    const categoryFields = {
-      sweater: ["по груди", "по низу", "рукав", "довжина"],
-      pants: ["по пояс", "по стегна", "посадка", "довжина", "ширина внизу"],
-      skirt: ["по пояс", "по стегна", "довжина"],
-      tshirt: ["по груди", "по низу", "довжина"],
-      outerwear: ["плечі", "по груди", "по низу", "рукав", "довжина"]
-    };
+/* ================= BUILD OUTPUT ================= */
+function buildResultText(){
+  const price = $("#price").value.trim();
+  const brand = $("#brand").value.trim();
+  const desc = $("#descInput").value.trim();
+  const cond = (document.querySelector('input[name="condition"]:checked') || {}).value || "";
+  const sizes = $all('.size-chk:checked').map(c=>c.value);
+  let out = "";
+  if(price) out += `💸Ціна ${price} грн\n`;
+  if(brand) out += `${brand}\n`;
+  if(desc) out += `${desc}\n`;
+  if(cond) out += `${cond}\n`;
+  out += "—————————\n";
+  if(sizes.length) out += `розмір ${sizes.join("/")} \n`;
 
-    const categoryGroup = document.getElementById("categoryGroup");
-    const catFieldsContainer = document.getElementById("categoryFieldsContainer");
-    let activeCategory = null;
-
-    categoryGroup.addEventListener("click", (e)=>{
-      const pill = e.target.closest(".category-pill");
-      if (!pill) return;
-      const cat = pill.dataset.cat;
-      // підсвітити
-      [...categoryGroup.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
-      pill.classList.add("active");
-      activeCategory = cat;
-      renderCategoryFields(cat);
+  if(activeCategory){
+    $all('#categoryFields input[data-field]').forEach(inp=>{
+      if(inp.value && inp.value.toString().trim() !== ""){
+        out += `${inp.dataset.field} ${inp.value.toString().trim()}\n`;
+      }
     });
-
-    function renderCategoryFields(cat){
-      catFieldsContainer.innerHTML = "";
-      if (!cat || !categoryFields[cat]) return;
-      const wrapper = document.createElement("div");
-      wrapper.className = "cat-fields";
-      categoryFields[cat].forEach(field=>{
-        const row = document.createElement("div");
-        row.className = "cat-row";
-        const lbl = document.createElement("label");
-        lbl.textContent = field;
-        const inp = document.createElement("input");
-        inp.type = "text";
-        inp.dataset.field = field;
-        inp.placeholder = "";
-        row.appendChild(lbl);
-        row.appendChild(inp);
-        wrapper.appendChild(row);
-      });
-      // чекбокс для "рукав від горловини" окремо під полями
-      if (cat === "sweater" || cat === "outerwear"){
-        const cbRow = document.createElement("div");
-        cbRow.className = "from-neck";
-        cbRow.innerHTML = `<label><input id="fromNeck" type="checkbox"> Рукав від горловини</label>`;
-        wrapper.appendChild(cbRow);
-      }
-      catFieldsContainer.appendChild(wrapper);
+    const fromNeck = $("#fromNeck");
+    if(fromNeck && fromNeck.checked){
+      out = out.replace(/(рукав\s+)/, "рукав від горловини ");
     }
+  }
+  out += "—————————\n";
+  const mats = $all('.materials input:checked').map(i=>i.value);
+  const custom = $("#materialCustom").value.trim();
+  if(custom) mats.push(custom);
+  if(mats.length) out += mats.join("/") + "\n";
+  return out.trim();
+}
 
-    /**************************************************************************
-     * AUTOCOMPLETE for BRAND
-     **************************************************************************/
-    const brandInput = document.getElementById("brand");
-    const suggestionsEl = document.getElementById("brandSuggestions");
-    let suggestionIndex = -1;
-    let currentSuggestions = [];
+/* ================= AUTOSIZE OUTPUT ================= */
+const outputEl = $("#output");
+function updateOutputHeight(){ autosize(outputEl); }
+outputEl.addEventListener("input", updateOutputHeight);
+autosize(outputEl);
 
-    brandInput.addEventListener("input", onBrandInput);
-    brandInput.addEventListener("keydown", onBrandKeyDown);
-    brandInput.addEventListener("blur", ()=> setTimeout(()=> suggestionsEl.style.display='none', 150) );
-
-    function onBrandInput(e){
-      const val = e.target.value.trim().toLowerCase();
-      if (!val){ suggestionsEl.style.display='none'; currentSuggestions=[]; suggestionIndex=-1; return; }
-      // фільтруємо (case-insensitive, шукаємо підрядок)
-      currentSuggestions = BRANDS.filter(b => b.toLowerCase().includes(val));
-      // сортуємо так, щоб ті що починаються з введеного — були зверху
-      currentSuggestions.sort((a,b)=>{
-        const av = a.toLowerCase(), bv = b.toLowerCase();
-        const startsA = av.startsWith(val), startsB = bv.startsWith(val);
-        if (startsA && !startsB) return -1;
-        if (!startsA && startsB) return 1;
-        return a.localeCompare(b);
-      });
-      renderBrandSuggestions();
+/* ================= LOCAL STORAGE (load/migrate) ================= */
+let savedData = [];
+function loadSavedData(){
+  // migrate from OLD_KEY if exists and STORAGE_KEY empty
+  try{
+    const old = localStorage.getItem(OLD_KEY);
+    const cur = localStorage.getItem(STORAGE_KEY);
+    if(old && !cur){
+      localStorage.setItem(STORAGE_KEY, old);
+      localStorage.removeItem(OLD_KEY);
     }
+  }catch(e){}
+  try{
+    savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") || [];
+  }catch(e){ savedData = []; }
+}
+function persistSaved(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData)); }
 
-    function renderBrandSuggestions(){
-      suggestionsEl.innerHTML = "";
-      if (!currentSuggestions.length){ suggestionsEl.style.display='none'; return; }
-      currentSuggestions.forEach((s, i)=>{
-        const div = document.createElement("div");
-        div.className = "suggestion";
-        div.textContent = s;
-        if (i === suggestionIndex) div.classList.add("active");
-        div.addEventListener("mousedown", (ev)=>{
-          // mousedown замість click — щоб не втратити фокус до blur
-          brandInput.value = s;
-          suggestionsEl.style.display = "none";
-          suggestionIndex = -1;
-        });
-        suggestionsEl.appendChild(div);
-      });
-      suggestionsEl.style.display = "block";
-    }
+/* ================= RENDER SAVED LIST (accordion) ================= */
+const savedListEl = $("#savedList");
+function renderSavedList(){
+  savedListEl.innerHTML = "";
+  savedData.forEach((item, idx) => {
+    const wrapper = document.createElement("div"); wrapper.className = "saved-item";
+    const header = document.createElement("div"); header.className = "saved-header" + (item.copied ? " copied" : "");
+    const title = document.createElement("div"); title.textContent = item.title;
+    const actions = document.createElement("div"); actions.className = "saved-actions";
 
-    function onBrandKeyDown(e){
-      if (suggestionsEl.style.display === "none") return;
-      if (e.key === "ArrowDown"){
-        e.preventDefault();
-        suggestionIndex = Math.min(suggestionIndex+1, currentSuggestions.length-1);
-        renderBrandSuggestions();
-      } else if (e.key === "ArrowUp"){
-        e.preventDefault();
-        suggestionIndex = Math.max(suggestionIndex-1, 0);
-        renderBrandSuggestions();
-      } else if (e.key === "Enter"){
-        e.preventDefault();
-        if (suggestionIndex >= 0 && currentSuggestions[suggestionIndex]){
-          brandInput.value = currentSuggestions[suggestionIndex];
-          suggestionsEl.style.display = "none";
-          suggestionIndex = -1;
-        }
-      } else if (e.key === "Escape"){
-        suggestionsEl.style.display = "none";
-        suggestionIndex = -1;
-      }
-    }
+    // copy all button
+    const copyAllBtn = document.createElement("button"); copyAllBtn.className = "icon-btn"; copyAllBtn.title = "Копіювати весь опис";
+    copyAllBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4a1 1 0 0 0-1 1v14h2V3h11V1zm3 4H8a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zm-1 16H9V7h9v14z"/></svg>`;
 
-    /**************************************************************************
-     * AUTOSIZE textarea helper
-     **************************************************************************/
-    function autosizeTextarea(el){
-      if (!el) return;
-      el.style.height = "auto";
-      const sh = el.scrollHeight;
-      el.style.height = Math.max(160, sh) + "px";
-    }
+    // copy-without-price button (use image icon)
+    const copyNoPriceBtn = document.createElement("button"); copyNoPriceBtn.className = "icon-btn"; copyNoPriceBtn.title = "Копіювати без ціни";
+    const img = document.createElement("img"); img.src = COPY_NOPRICE_ICON; img.alt="cp"; copyNoPriceBtn.appendChild(img);
 
-    // автопідгонка стартова
-    autosizeTextarea(document.getElementById("output"));
-    document.getElementById("output").addEventListener("input", e => autosizeTextarea(e.target));
+    // delete button (use DELETE_SVG)
+    const delBtn = document.createElement("button"); delBtn.className = "icon-btn"; delBtn.title = "Видалити";
+    delBtn.innerHTML = DELETE_SVG;
 
-    /**************************************************************************
-     * BUILD result text
-     **************************************************************************/
-    function buildResultText(){
-      const price = document.getElementById("price").value.trim();
-      const brand = document.getElementById("brand").value.trim();
-      const desc = document.getElementById("descInput").value.trim();
-      const condition = (document.querySelector('input[name="condition"]:checked') || {}).value || "";
-      const sizes = Array.from(document.querySelectorAll('.size-group input:checked')).map(i=>i.value);
-      let text = "";
-      if (price) text += `💸Ціна ${price}\n`;
-      if (brand) text += `${brand}\n`;
-      if (desc) text += `${desc}\n`;
-      if (condition) text += `${condition}\n`;
-      text += "—————————\n";
-      if (sizes.length) text += `розмір ${sizes.join("/")}\n`;
+    actions.appendChild(copyAllBtn);
+    actions.appendChild(copyNoPriceBtn);
+    actions.appendChild(delBtn);
 
-      // category-specific fields
-      if (activeCategory){
-        const inputs = [...document.querySelectorAll('#categoryFieldsContainer input[data-field]')];
-        inputs.forEach(inp=>{
-          if (inp.value.trim()){
-            text += `${inp.dataset.field} ${inp.value.trim()}\n`;
-          }
-        });
-        // if fromNeck checked, replace first occurrence of 'рукав ' into 'рукав від горловини '
-        const fromNeck = document.getElementById("fromNeck");
-        if (fromNeck && fromNeck.checked){
-          text = text.replace(/(рукав\s+)/, "рукав від горловини ");
-        }
-      }
+    header.appendChild(title);
+    header.appendChild(actions);
 
-      text += "—————————\n";
-      const materials = Array.from(document.querySelectorAll('.materials input:checked')).map(i=>i.value);
-      const customMat = document.getElementById("materialCustom").value.trim();
-      if (customMat) materials.push(customMat);
-      if (materials.length) text += materials.join("/") + "\n";
+    const body = document.createElement("div"); body.className = "saved-body"; body.textContent = item.text;
 
-      return text.trim();
-    }
-
-    function onGenerate(){
-      const out = document.getElementById("output");
-      out.value = buildResultText();
-      autosizeTextarea(out);
-    }
-
-    function copyMain(){
-      const out = document.getElementById("output");
-      if (!out.value) return;
-      copyToClipboard(out.value);
-    }
-
-    function copyToClipboard(text){
-      if (!text) return;
-      if (navigator.clipboard && navigator.clipboard.writeText){
-        navigator.clipboard.writeText(text).catch(()=> fallbackCopy(text));
-      } else fallbackCopy(text);
-    }
-    function fallbackCopy(text){
-      const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
-      try { document.execCommand("copy"); } catch(e){}
-      ta.remove();
-    }
-
-    /**************************************************************************
-     * SAVE (додавання акордеону у список)
-     **************************************************************************/
-    function onSave(){
-      const text = buildResultText();
-      if (!text.trim()) return alert("Немає тексту для збереження.");
-      const title = document.getElementById("descInput").value.trim() || "Без назви";
-      addSavedItem(title, text);
-      // очистимо інпути, але збережемо список
-      clearFormInputsKeepingSaved();
-    }
-
-    function addSavedItem(title, text){
-      const list = document.getElementById("savedList");
-      const item = document.createElement("div"); item.className = "saved-item";
-      const header = document.createElement("div"); header.className = "saved-header";
-      const titleEl = document.createElement("div"); titleEl.className = "saved-title"; titleEl.textContent = title;
-      const controls = document.createElement("div"); controls.className = "saved-controls";
-
-      // COPY button (clipboard)
-      const copyBtn = document.createElement("button"); copyBtn.className = "icon-btn"; copyBtn.title = "Копіювати";
-      copyBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4a1 1 0 0 0-1 1v14h2V3h11V1zm3 4H8a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zm-1 16H9V7h9v14z"/></svg>`;
-
-      // DELETE button - тут вставляємо твій SVG "Х" (DELETE_SVG константа)
-      const delBtn = document.createElement("button"); delBtn.className = "icon-btn"; delBtn.title = "Видалити";
-      delBtn.innerHTML = DELETE_SVG;
-
-      controls.appendChild(copyBtn);
-      controls.appendChild(delBtn);
-
-      header.appendChild(titleEl);
-      header.appendChild(controls);
-
-      const body = document.createElement("div"); body.className = "saved-body"; body.textContent = text;
-
-      // header click toggles body, but ignore clicks on control buttons
-      header.addEventListener("click", (ev)=>{
-        if (ev.target.closest(".icon-btn")) return;
-        const visible = body.style.display === "block";
-        body.style.display = visible ? "none" : "block";
-      });
-
-      copyBtn.addEventListener("click", (ev)=>{
-        ev.stopPropagation();
-        copyToClipboard(text);
-      });
-
-      delBtn.addEventListener("click", (ev)=>{
-        ev.stopPropagation();
-        if (confirm("Видалити цей збережений опис?")) item.remove();
-      });
-
-      item.appendChild(header);
-      item.appendChild(body);
-      list.prepend(item);
-    }
-
-    /**************************************************************************
-     * CLEAR / reset utilities
-     **************************************************************************/
-    function clearForm(){
-      document.querySelectorAll("input[type=text], input[type=number]").forEach(i => i.value = "");
-      document.querySelectorAll("input[type=radio], input[type=checkbox]").forEach(i => i.checked = false);
-      document.getElementById("categoryFieldsContainer").innerHTML = "";
-      document.getElementById("output").value = "";
-      autosizeTextarea(document.getElementById("output"));
-      [...document.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
-      activeCategory = null;
-      // close suggestions
-      document.getElementById("brandSuggestions").style.display = "none";
-    }
-
-    function clearFormInputsKeepingSaved(){
-      document.querySelectorAll("input[type=text], input[type=number]").forEach(i => i.value = "");
-      document.querySelectorAll("input[type=radio], input[type=checkbox]").forEach(i => i.checked = false);
-      document.getElementById("categoryFieldsContainer").innerHTML = "";
-      autosizeTextarea(document.getElementById("output"));
-      [...document.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
-      activeCategory = null;
-      document.getElementById("brandSuggestions").style.display = "none";
-    }
-
-    /**************************************************************************
-     * BRAND autocomplete: init suggestions when page loaded to avoid repeated DOM creation
-     **************************************************************************/
-    // (nothing else needed here; brand input listener handles rendering)
-
-    // keyboard UX nicety: hide suggestions on Escape
-    document.addEventListener("keydown", (e)=>{
-      if (e.key === "Escape") document.getElementById("brandSuggestions").style.display = "none";
+    // toggle body on header click (ignore clicks on action buttons)
+    header.addEventListener("click", (ev)=>{
+      if(ev.target.closest(".icon-btn")) return;
+      const isVisible = body.style.display === "block";
+      body.style.display = isVisible ? "none" : "block";
     });
 
-    // ensure textarea autosize on load
-    autosizeTextarea(document.getElementById("output"));
+    // copy all behavior (mark copied)
+    copyAllBtn.addEventListener("click", (ev)=>{
+      ev.stopPropagation();
+      copyToClipboard(item.text);
+      item.copied = true;
+      persistSaved();
+      renderSavedList();
+    });
 
-    /**************************************************************************
-     * Полезний fallback: якщо з якихось причин splash не сховався (старі браузери),
-     * через 6с все одно приберемо його.
-     **************************************************************************/
-    setTimeout(()=>{ const s = document.getElementById("splash"); if (s) s.remove(); }, 6000);
+    // copy without price
+    copyNoPriceBtn.addEventListener("click", (ev)=>{
+      ev.stopPropagation();
+      // remove first non-empty line that starts with 💸Ціна or first line unconditionally
+      const lines = item.text.split(/\r?\n/);
+      let startIdx = 0;
+      // if first line contains 'Ціна' or emoji, skip it
+      if(lines.length && /цiн|ціна|💸/i.test(lines[0])) startIdx = 1;
+      const noPrice = lines.slice(startIdx).join("\n");
+      copyToClipboard(noPrice);
+      // do NOT mark as copied (only copyAll marks as copied), unless you want both to mark
+    });
 
-  </script>
+    // delete
+    delBtn.addEventListener("click", (ev)=>{
+      ev.stopPropagation();
+      if(!confirm("Видалити цей збережений опис?")) return;
+      savedData.splice(idx,1);
+      persistSaved();
+      renderSavedList();
+    });
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(body);
+    savedListEl.appendChild(wrapper);
+  });
+}
+
+/* ================= COPY helper ================= */
+function copyToClipboard(text){
+  if(!text) return;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).catch(()=> fallbackCopy(text));
+  } else fallbackCopy(text);
+}
+function fallbackCopy(text){
+  const ta = document.createElement("textarea");
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  ta.remove();
+}
+
+/* ================= BUTTONS: generate/copy/save ================= */
+$("#btnGenerate").addEventListener("click", ()=>{
+  const t = buildResultText();
+  outputEl.value = t;
+  autosize(outputEl);
+});
+
+$("#btnCopy").addEventListener("click", ()=>{
+  if(!outputEl.value) return;
+  copyToClipboard(outputEl.value);
+});
+
+$("#btnSave").addEventListener("click", ()=>{
+  const text = outputEl.value.trim();
+  if(!text){ alert("Немає тексту для збереження."); return; }
+  const title = $("#descInput").value.trim() || "Без назви";
+  const id = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,8);
+  savedData.unshift({ id, title, text, copied: false });
+  persistSaved();
+  renderSavedList();
+  // clear inputs for new entry (leave saved list)
+  clearFormInputsKeepingSaved();
+});
+
+/* ============== CLEAR ALL (saved items) ============== */
+$("#btnClearAll").addEventListener("click", ()=>{
+  if(!confirm("Видалити всі збережені описі?")) return;
+  savedData = [];
+  persistSaved();
+  renderSavedList();
+});
+
+/* ============== FLOATING CLEAR (clears form inputs only) ============== */
+$("#fabClear").addEventListener("click", ()=>{
+  if(!confirm("Очистити всі поля форми?")) return;
+  clearFormInputsKeepingSaved();
+});
+
+/* ============== FORM CLEAR HELPERS ============== */
+function clearFormInputsKeepingSaved(){
+  $all('input[type="text"], input[type="number"], textarea').forEach(i => i.value = "");
+  $all('input[type="checkbox"], input[type="radio"]').forEach(i => i.checked = false);
+  catFieldsContainer.innerHTML = "";
+  outputEl.value = "";
+  autosize(outputEl);
+  [...document.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
+  activeCategory = null;
+  suggestionsEl.style.display = "none";
+}
+
+/* ============== INIT (load saved etc) ============== */
+loadSavedData();
+renderSavedList();
+autosize(outputEl);
+
+/* ============== UTILITY: prevent accidental Enter submit ============== */
+document.addEventListener("keydown", function(e){
+  if(e.key === "Enter" && e.target.tagName.toLowerCase() !== "textarea"){
+    e.preventDefault();
+  }
+});
+</script>
 </body>
 </html>
