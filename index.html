@@ -204,6 +204,10 @@
 <div class="sizes">
   <span>Розмір:</span>
   <label class="pill">
+    <input type="checkbox" value="XXS">
+    <span>XXS</span>
+  </label>
+  <label class="pill">
     <input type="checkbox" value="XS">
     <span>XS</span>
   </label>
@@ -227,6 +231,14 @@
     <input type="checkbox" value="XXL">
     <span>XXL</span>
   </label>
+  <label class="pill">
+    <input type="checkbox" value="XXXL">
+    <span>XXXL</span>
+  </label>
+  <label class="pill">
+    <input type="checkbox" value="XXXXL">
+    <span>XXXXL</span>
+  </label>
 </div>
 
   <hr>
@@ -240,6 +252,7 @@
       <div class="category-pill" data-cat="skirt">Спідниця</div>
       <div class="category-pill" data-cat="tshirt">Футболка</div>
       <div class="category-pill" data-cat="outerwear">Верхній одяг</div>
+      <div class="category-pill" data-cat="dress">Сукня</div>
     </div>
 
     <div id="categoryFields" class="cat-fields"></div>
@@ -263,6 +276,9 @@
     <label><input type="checkbox" value="альпака"> Альпака</label>
     <label><input type="checkbox" value="мохер"> Мохер</label>
     <label><input type="checkbox" value="меринос"> Меринос</label>
+    <label><input type="checkbox" value="шовк"> Шовк</label>
+    <label><input type="checkbox" value="екошкіра"> Екошкіра</label>
+    <label><input type="checkbox" value="нейлон"> Нейлон</label>
 
     <div style="margin-top:8px;">
       <input id="materialCustom" type="text" placeholder="Інший матеріал">
@@ -314,7 +330,7 @@ const BRANDS = [
   "ZARA","H&M","M&S","George","Primark","F&F","Stradivarius","Bershka",
   "Pull & Bear","COS","Arket","Massimo Dutty","Next","New Look","& Other Stories",
   "Mango","ASOS","Topshop","Monki","Reiss","Autograph","Hugo Boss","Cashmere",
-  "Woolmark","Ralph Lauren","Max Mara","Only","C&A"
+  "Woolmark","Ralph Lauren","Max Mara","Only","C&A","Weekday","Calvin Klein"
 ];
 
 /* ================ CATEGORY FIELDS & numeric list ================ */
@@ -323,10 +339,11 @@ const categoryFields = {
   pants: ["по пояс","по стегна","посадка","довжина","ширина внизу"],
   skirt: ["по пояс","по стегна","довжина"],
   tshirt: ["по груди","по низу","довжина"],
-  outerwear: ["плечі","по груди","по низу","рукав","довжина"]
+  outerwear: ["плечі","по груди","по низу","рукав","довжина"],
+  dress: ["по груди","по талія","по стегна","рукав","довжина"]
 };
 
-const numericFields = ["по груди","по низу","рукав","довжина","по пояс","по стегна","посадка","ширина внизу","плечі"];
+const numericFields = ["по груди","по низу","рукав","довжина","по пояс","по стегна","посадка","ширина внизу","плечі","по талія"];
 
 /* =================== UTIL =================== */
 function $(sel){ return document.querySelector(sel); }
@@ -436,7 +453,7 @@ function renderCategoryFields(cat){
     row.appendChild(inp);
     catFieldsContainer.appendChild(row);
   });
-  if(cat === "sweater" || cat === "outerwear"){
+  if(cat === "sweater" || cat === "outerwear" || cat === "dress"){
     // add "Рукав від горловини" checkbox beneath
     const cbRow = document.createElement("div");
     cbRow.className = "cat-row";
@@ -457,8 +474,8 @@ function buildResultText(){
   const price = $("#price").value.trim();
   const brand = $("#brand").value.trim();
   const desc = $("#descInput").value.trim();
-  const cond = (document.querySelector('input[name="condition"]:checked') || {}).value || "";
-  const sizes = $all('.size-chk:checked').map(c=>c.value);
+  const cond = (document.querySelector('input[name="state"]:checked') || {}).value || "";
+  const sizes = $all('.sizes input[type="checkbox"]:checked').map(c=>c.value);
   let out = "";
   if(price) out += `💸Ціна ${price} грн\n`;
   if(brand) out += `${brand}\n`;
