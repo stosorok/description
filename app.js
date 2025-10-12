@@ -1,363 +1,656 @@
-/* ================= CONFIG ================= */
-const APP_VERSION = "1.2";
-const STORAGE_KEY = "savedDescriptions_v1_2";
-const OLD_KEY = "savedDescriptions_v1_1_1"; // migrate if exists
+/* ==================== CONFIGURATION ==================== */
+const CONFIG = {
+  APP_VERSION: "1.2",
+  STORAGE_KEY: "savedDescriptions_v1_2",
+  OLD_STORAGE_KEY: "savedDescriptions_v1_1_1",
 
-// DELETE SVG (user-provided 'X' icon) - set fill to currentColor so it follows header text color
-const DELETE_SVG = `<svg viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;display:block;"><path d="M11.383 13.644A1.03 1.03 0 0 1 9.928 15.1L6 11.172 2.072 15.1a1.03 1.03 0 1 1-1.455-1.456l3.928-3.928L.617 5.79a1.03 1.03 0 1 1 1.455-1.456L6 8.261l3.928-3.928a1.03 1.03 0 0 1 1.455 1.456L7.455 9.716z" fill="currentColor"/></svg>`;
+  DELETE_SVG: `<svg viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px;display:block;"><path d="M11.383 13.644A1.03 1.03 0 0 1 9.928 15.1L6 11.172 2.072 15.1a1.03 1.03 0 1 1-1.455-1.456l3.928-3.928L.617 5.79a1.03 1.03 0 1 1 1.455-1.456L6 8.261l3.928-3.928a1.03 1.03 0 0 1 1.455 1.456L7.455 9.716z" fill="currentColor"/></svg>`,
 
-// Shafa icon URL (for copy-without-price) -> we will embed as <img> in button
-const COPY_NOPRICE_ICON = "https://shafa.c.prom.st/favicon-32x32.png";
+  COPY_NOPRICE_ICON: "https://shafa.c.prom.st/favicon-32x32.png",
 
-/* ================ BRANDS (autocomplete) ================ */
-const BRANDS = [
-  "ZARA","H&M","M&S","George","Primark","F&F","Stradivarius","Bershka",
-  "Pull & Bear","COS","Arket","Massimo Dutty","Next","New Look","& Other Stories",
-  "Mango","ASOS","Topshop","Monki","Reiss","Autograph","Hugo Boss","Cashmere",
-  "Woolmark","Ralph Lauren","Max Mara","Only","C&A","Weekday","Calvin Klein"
-];
+  BRANDS: [
+    "ZARA",
+    "H&M",
+    "M&S",
+    "George",
+    "Primark",
+    "F&F",
+    "Stradivarius",
+    "Bershka",
+    "Pull & Bear",
+    "COS",
+    "Arket",
+    "Massimo Dutty",
+    "Next",
+    "New Look",
+    "& Other Stories",
+    "Mango",
+    "ASOS",
+    "Topshop",
+    "Monki",
+    "Reiss",
+    "Autograph",
+    "Hugo Boss",
+    "Cashmere",
+    "Woolmark",
+    "Ralph Lauren",
+    "Max Mara",
+    "Only",
+    "C&A",
+    "Weekday",
+    "Calvin Klein",
+  ],
 
-/* ================ CATEGORY FIELDS & numeric list ================ */
-const categoryFields = {
-  sweater: ["по груди","по низу","рукав","довжина"],
-  pants: ["по пояс","по стегна","посадка","довжина","ширина внизу"],
-  skirt: ["по пояс","по стегна","довжина"],
-  tshirt: ["по груди","по низу","довжина"],
-  outerwear: ["плечі","по груди","по низу","рукав","довжина"],
-  dress: ["по груди","по талія","по стегна","рукав","довжина"]
+  CATEGORY_FIELDS: {
+    sweater: ["по груди", "по низу", "рукав", "довжина"],
+    pants: ["по пояс", "по стегна", "посадка", "довжина", "ширина внизу"],
+    skirt: ["по пояс", "по стегна", "довжина"],
+    tshirt: ["по груди", "по низу", "довжина"],
+    outerwear: ["плечі", "по груди", "по низу", "рукав", "довжина"],
+    dress: ["по груди", "по талії", "по стегна", "рукав", "довжина"],
+  },
+
+  NUMERIC_FIELDS: [
+    "по груди",
+    "по низу",
+    "рукав",
+    "довжина",
+    "по пояс",
+    "по стегна",
+    "посадка",
+    "ширина внизу",
+    "плечі",
+    "по талії",
+  ],
+
+  CATEGORIES_WITH_NECK_CHECKBOX: ["sweater", "outerwear", "dress"],
+
+  SPLASH_DELAYS: { fadeOut: 700, remove: 420, fallback: 6000 },
 };
 
-const numericFields = ["по груди","по низу","рукав","довжина","по пояс","по стегна","посадка","ширина внизу","плечі","по талія"];
+/* ==================== APPLICATION STATE ==================== */
+const state = {
+  activeCategory: null,
+  savedDescriptions: [],
+  brandSuggestions: {
+    current: [],
+    selectedIndex: -1,
+  },
+};
 
-/* =================== UTIL =================== */
-function $(sel){ return document.querySelector(sel); }
-function $all(sel){ return Array.from(document.querySelectorAll(sel)); }
+/* ==================== UTILITIES ==================== */
+const $ = (sel) => document.querySelector(sel);
+const $all = (sel) => Array.from(document.querySelectorAll(sel));
 
-function autosize(el){
-  if(!el) return;
+const autosize = (el) => {
+  if (!el) return;
   el.style.height = "auto";
   el.style.height = Math.max(160, el.scrollHeight) + "px";
-}
+};
 
-/* ================= SPLASH HIDE ================= */
-window.addEventListener("load", ()=>{
-  const splash = document.getElementById("splash");
-  setTimeout(()=> {
-    if(splash) splash.style.opacity = "0";
-    setTimeout(()=> {
-      if(splash && splash.parentNode) splash.parentNode.removeChild(splash);
-      document.getElementById("app").classList.remove("hidden");
-    }, 420);
-  }, 700);
-});
-// fallback
-setTimeout(()=>{ const s = document.getElementById("splash"); if(s && s.parentNode){ s.parentNode.removeChild(s); document.getElementById("app").classList.remove("hidden"); } }, 6000);
+const copyToClipboard = (text) => {
+  if (!text) return;
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+};
 
-/* ================= BRAND AUTOCOMPLETE ================= */
-const brandInput = $("#brand");
-const suggestionsEl = $("#brandSuggestions");
-let currentSuggestions = [];
-let suggestionIndex = -1;
 
-brandInput.addEventListener("input", onBrandInput);
-brandInput.addEventListener("keydown", onBrandKeyDown);
-brandInput.addEventListener("blur", ()=> setTimeout(()=> suggestionsEl.style.display='none', 140));
+const fallbackCopy = (text) => {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand("copy");
+  } catch (e) {}
+  ta.remove();
+};
 
-function onBrandInput(e){
-  const v = e.target.value.trim().toLowerCase();
-  if(!v){ suggestionsEl.style.display='none'; currentSuggestions=[]; suggestionIndex=-1; return; }
-  currentSuggestions = BRANDS.filter(b => b.toLowerCase().includes(v));
-  currentSuggestions.sort((a,b)=>{
-    const av=a.toLowerCase(), bv=b.toLowerCase();
-    const sa = av.startsWith(v), sb = bv.startsWith(v);
-    if(sa && !sb) return -1;
-    if(!sa && sb) return 1;
-    return a.localeCompare(b);
-  });
-  renderBrandSuggestions();
-}
-function renderBrandSuggestions(){
-  suggestionsEl.innerHTML = "";
-  if(!currentSuggestions.length){ suggestionsEl.style.display='none'; return; }
-  currentSuggestions.forEach((s,i)=>{
-    const div = document.createElement("div");
-    div.className = "suggestion";
-    div.textContent = s;
-    if(i===suggestionIndex) div.classList.add("active");
-    div.addEventListener("mousedown", (ev)=> {
-      brandInput.value = s;
-      suggestionsEl.style.display='none';
-      suggestionIndex = -1;
+/* ==================== STORAGE MANAGEMENT ==================== */
+const storage = {
+  migrate() {
+    try {
+      const old = localStorage.getItem(CONFIG.OLD_STORAGE_KEY);
+      const current = localStorage.getItem(CONFIG.STORAGE_KEY);
+      if (old && !current) {
+        localStorage.setItem(CONFIG.STORAGE_KEY, old);
+        localStorage.removeItem(CONFIG.OLD_STORAGE_KEY);
+      }
+    } catch (e) {}
+  },
+
+  load() {
+    try {
+      return JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY) || "[]") || [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  save(data) {
+    localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+  },
+};
+
+/* ==================== BRAND AUTOCOMPLETE ==================== */
+const brandAutocomplete = {
+  filter(value) {
+    const v = value.trim().toLowerCase();
+    if (!v) return [];
+
+    const matches = CONFIG.BRANDS.filter((b) => b.toLowerCase().includes(v));
+    return matches.sort((a, b) => {
+      const av = a.toLowerCase(),
+        bv = b.toLowerCase();
+      const startsA = av.startsWith(v),
+        startsB = bv.startsWith(v);
+      if (startsA && !startsB) return -1;
+      if (!startsA && startsB) return 1;
+      return a.localeCompare(b);
     });
-    suggestionsEl.appendChild(div);
-  });
-  suggestionsEl.style.display = 'block';
-}
-function onBrandKeyDown(e){
-  if(suggestionsEl.style.display === 'none') return;
-  if(e.key === "ArrowDown"){ e.preventDefault(); suggestionIndex = Math.min(suggestionIndex+1, currentSuggestions.length-1); renderBrandSuggestions(); }
-  else if(e.key === "ArrowUp"){ e.preventDefault(); suggestionIndex = Math.max(suggestionIndex-1, 0); renderBrandSuggestions(); }
-  else if(e.key === "Enter"){ e.preventDefault(); if(suggestionIndex>=0 && currentSuggestions[suggestionIndex]){ brandInput.value = currentSuggestions[suggestionIndex]; suggestionsEl.style.display='none'; suggestionIndex=-1; } }
-  else if(e.key === "Escape"){ suggestionsEl.style.display='none'; suggestionIndex=-1; }
-}
+  },
 
-/* ================= CATEGORY RENDER ================= */
-const categoryGroup = document.getElementById("categoryGroup");
-const catFieldsContainer = document.getElementById("categoryFields");
-let activeCategory = null;
+  render() {
+    const container = $("#brandSuggestions");
+    container.innerHTML = "";
 
-categoryGroup.addEventListener("click", (ev)=>{
-  const pill = ev.target.closest(".category-pill");
-  if(!pill) return;
-  const cat = pill.dataset.cat;
-  [...categoryGroup.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
-  pill.classList.add("active");
-  activeCategory = cat;
-  renderCategoryFields(cat);
-});
+    if (!state.brandSuggestions.current.length) {
+      container.style.display = "none";
+      return;
+    }
 
-function renderCategoryFields(cat){
-  catFieldsContainer.innerHTML = "";
-  if(!cat || !categoryFields[cat]) return;
-  categoryFields[cat].forEach(field=>{
+    state.brandSuggestions.current.forEach((brand, i) => {
+      const div = document.createElement("div");
+      div.className = "suggestion";
+      div.textContent = brand;
+      if (i === state.brandSuggestions.selectedIndex)
+        div.classList.add("active");
+
+      div.addEventListener("mousedown", () => {
+        $("#brand").value = brand;
+        container.style.display = "none";
+        state.brandSuggestions.selectedIndex = -1;
+      });
+
+      container.appendChild(div);
+    });
+
+    container.style.display = "block";
+  },
+
+  navigate(direction) {
+    const max = state.brandSuggestions.current.length - 1;
+    if (direction === "down") {
+      state.brandSuggestions.selectedIndex = Math.min(
+        state.brandSuggestions.selectedIndex + 1,
+        max
+      );
+    } else if (direction === "up") {
+      state.brandSuggestions.selectedIndex = Math.max(
+        state.brandSuggestions.selectedIndex - 1,
+        0
+      );
+    }
+    this.render();
+  },
+
+  select() {
+    const idx = state.brandSuggestions.selectedIndex;
+    if (idx >= 0 && state.brandSuggestions.current[idx]) {
+      $("#brand").value = state.brandSuggestions.current[idx];
+      $("#brandSuggestions").style.display = "none";
+      state.brandSuggestions.selectedIndex = -1;
+    }
+  },
+};
+
+/* ==================== CATEGORY MANAGEMENT ==================== */
+const categoryManager = {
+  setActive(category) {
+    state.activeCategory = category;
+    $all(".category-pill").forEach((p) => p.classList.remove("active"));
+    $(`.category-pill[data-cat="${category}"]`)?.classList.add("active");
+    this.renderFields();
+  },
+
+  renderFields() {
+    const container = $("#categoryFields");
+    container.innerHTML = "";
+
+    if (!state.activeCategory || !CONFIG.CATEGORY_FIELDS[state.activeCategory])
+      return;
+
+    CONFIG.CATEGORY_FIELDS[state.activeCategory].forEach((field) => {
+      const row = document.createElement("div");
+      row.className = "cat-row";
+
+      const label = document.createElement("label");
+      label.textContent = field;
+
+      const input = document.createElement("input");
+      input.dataset.field = field;
+
+      if (CONFIG.NUMERIC_FIELDS.includes(field)) {
+        input.type = "number";
+        input.inputMode = "numeric";
+        input.pattern = "[0-9]*";
+      } else {
+        input.type = "text";
+      }
+
+      row.appendChild(label);
+      row.appendChild(input);
+      container.appendChild(row);
+    });
+
+    if (CONFIG.CATEGORIES_WITH_NECK_CHECKBOX.includes(state.activeCategory)) {
+      this.addNeckCheckbox(container);
+    }
+  },
+
+  addNeckCheckbox(container) {
     const row = document.createElement("div");
     row.className = "cat-row";
-    const lbl = document.createElement("label");
-    lbl.textContent = field;
-    const inp = document.createElement("input");
-    if(numericFields.includes(field)){
-      inp.type = "number";
-      inp.inputMode = "numeric";
-      inp.pattern = "[0-9]*";
-    } else {
-      inp.type = "text";
-    }
-    inp.dataset.field = field;
-    row.appendChild(lbl);
-    row.appendChild(inp);
-    catFieldsContainer.appendChild(row);
-  });
-  if(cat === "sweater" || cat === "outerwear" || cat === "dress"){
-    // add "Рукав від горловини" checkbox beneath
-    const cbRow = document.createElement("div");
-    cbRow.className = "cat-row";
+
     const spacer = document.createElement("label");
-    spacer.textContent = ""; spacer.style.visibility = "hidden";
-    const cbWrapper = document.createElement("div");
-    cbWrapper.style.display = "flex";
-    cbWrapper.style.alignItems = "center";
-    cbWrapper.innerHTML = `<label style="font-weight:600"><input id="fromNeck" type="checkbox"> Рукав від горловини</label>`;
-    cbRow.appendChild(spacer);
-    cbRow.appendChild(cbWrapper);
-    catFieldsContainer.appendChild(cbRow);
-  }
-}
+    spacer.style.visibility = "hidden";
 
-/* ================= BUILD OUTPUT ================= */
-function buildResultText(){
-  const price = $("#price").value.trim();
-  const brand = $("#brand").value.trim();
-  const desc = $("#descInput").value.trim();
-  const cond = (document.querySelector('input[name="state"]:checked') || {}).value || "";
-  const sizes = $all('.sizes input[type="checkbox"]:checked').map(c=>c.value);
-  let out = "";
-  if(price) out += `💸Ціна ${price} грн\n`;
-  if(brand) out += `${brand}\n`;
-  if(desc) out += `${desc}\n`;
-  if(cond) out += `${cond}\n`;
-  out += "—————————\n";
-  if(sizes.length) out += `розмір ${sizes.join("/")} \n`;
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "flex";
+    wrapper.style.alignItems = "center";
+    wrapper.innerHTML = `<label style="font-weight:600"><input id="fromNeck" type="checkbox"> Рукав від горловини</label>`;
 
-  if(activeCategory){
-    $all('#categoryFields input[data-field]').forEach(inp=>{
-      if(inp.value && inp.value.toString().trim() !== ""){
-        out += `${inp.dataset.field} ${inp.value.toString().trim()}\n`;
+    row.appendChild(spacer);
+    row.appendChild(wrapper);
+    container.appendChild(row);
+  },
+};
+
+/* ==================== OUTPUT BUILDER ==================== */
+const outputBuilder = {
+  build() {
+    const price = $("#price").value.trim();
+    const brand = $("#brand").value.trim();
+    const desc = $("#descInput").value.trim();
+    const condition =
+      (document.querySelector('input[name="state"]:checked') || {}).value || "";
+    const sizes = $all('.sizes input[type="checkbox"]:checked').map(
+      (c) => c.value
+    );
+
+    let output = "";
+    if (price) output += `💸Ціна ${price} грн\n`;
+    if (brand) output += `${brand}\n`;
+    if (desc) output += `${desc}\n`;
+    if (condition) output += `${condition}\n`;
+    output += "―――――――\n";
+    if (sizes.length) output += `розмір ${sizes.join("/")} \n`;
+
+    if (state.activeCategory) {
+      $all("#categoryFields input[data-field]").forEach((inp) => {
+        const val = inp.value.trim();
+        if (val) output += `${inp.dataset.field} ${val}\n`;
+      });
+
+      const fromNeck = $("#fromNeck");
+      if (fromNeck?.checked) {
+        output = output.replace(/(рукав\s+)/, "рукав від горловини ");
+      }
+    }
+
+    output += "―――――――\n";
+
+    const materials = $all(".materials input:checked").map((i) => i.value);
+    const customMaterial = $("#materialCustom").value.trim();
+    if (customMaterial) materials.push(customMaterial);
+    if (materials.length) output += materials.join("/") + "\n";
+
+    return output.trim();
+  },
+};
+
+/* ==================== SAVED DESCRIPTIONS MANAGER ==================== */
+const savedManager = {
+  add(text) {
+    const title = $("#descInput").value.trim() || "Без назви";
+    const id =
+      Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+    state.savedDescriptions.unshift({ id, title, text, copied: false });
+    storage.save(state.savedDescriptions);
+    this.render();
+  },
+
+  remove(index) {
+    if (!confirm("Видалити цей збережений опис?")) return;
+    state.savedDescriptions.splice(index, 1);
+    storage.save(state.savedDescriptions);
+    this.render();
+  },
+
+  clearAll() {
+    if (!confirm("Видалити всі збережені описи?")) return;
+    state.savedDescriptions = [];
+    storage.save(state.savedDescriptions);
+    this.render();
+  },
+
+  markCopied(index) {
+    state.savedDescriptions[index].copied = true;
+    storage.save(state.savedDescriptions);
+    this.render();
+  },
+
+  copyWithoutPrice(text) {
+    const lines = text.split(/\r?\n/);
+    const startIdx = lines.length && /ціна|💸/i.test(lines[0]) ? 1 : 0;
+    return lines.slice(startIdx).join("\n");
+  },
+
+  render() {
+    const container = $("#savedList");
+    container.innerHTML = "";
+
+    state.savedDescriptions.forEach((item, idx) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "saved-item";
+
+      const header = document.createElement("div");
+      header.className = "saved-header" + (item.copied ? " copied" : "");
+
+      const title = document.createElement("div");
+      title.textContent = item.title;
+
+      const actions = document.createElement("div");
+      actions.className = "saved-actions";
+
+      // Copy all button
+      const copyAllBtn = document.createElement("button");
+      copyAllBtn.className = "icon-btn";
+      copyAllBtn.title = "Копіювати весь опис";
+      copyAllBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4a1 1 0 0 0-1 1v14h2V3h11V1zm3 4H8a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zm-1 16H9V7h9v14z"/></svg>`;
+      copyAllBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyToClipboard(item.text);
+        this.markCopied(idx);
+      });
+
+      // Copy without price button
+      const copyNoPriceBtn = document.createElement("button");
+      copyNoPriceBtn.className = "icon-btn";
+      copyNoPriceBtn.title = "Копіювати без ціни";
+      const img = document.createElement("img");
+      img.src = CONFIG.COPY_NOPRICE_ICON;
+      img.alt = "cp";
+      copyNoPriceBtn.appendChild(img);
+      copyNoPriceBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        copyToClipboard(this.copyWithoutPrice(item.text));
+      });
+
+      // Delete button
+      const delBtn = document.createElement("button");
+      delBtn.className = "icon-btn";
+      delBtn.title = "Видалити";
+      delBtn.innerHTML = CONFIG.DELETE_SVG;
+      delBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.remove(idx);
+      });
+
+      actions.appendChild(copyAllBtn);
+      actions.appendChild(copyNoPriceBtn);
+      actions.appendChild(delBtn);
+
+      header.appendChild(title);
+      header.appendChild(actions);
+
+      const body = document.createElement("div");
+      body.className = "saved-body";
+      body.textContent = item.text;
+
+      header.addEventListener("click", (e) => {
+        if (!e.target.closest(".icon-btn")) {
+          body.style.display =
+            body.style.display === "block" ? "none" : "block";
+        }
+      });
+
+      wrapper.appendChild(header);
+      wrapper.appendChild(body);
+      container.appendChild(wrapper);
+    });
+  },
+};
+
+/* ==================== FORM MANAGEMENT ==================== */
+const formManager = {
+  clear() {
+    if (!confirm("Очистити всі поля форми?")) return;
+    $all('input[type="text"], input[type="number"], textarea').forEach(
+      (i) => (i.value = "")
+    );
+    $all('input[type="checkbox"], input[type="radio"]').forEach(
+      (i) => (i.checked = false)
+    );
+    $("#categoryFields").innerHTML = "";
+    $("#output").value = "";
+    autosize($("#output"));
+    $all(".category-pill").forEach((p) => p.classList.remove("active"));
+    state.activeCategory = null;
+    $("#brandSuggestions").style.display = "none";
+  },
+};
+
+/* ==================== UI INITIALIZATION ==================== */
+const ui = {
+  initSplash() {
+    window.addEventListener("load", () => {
+      const splash = $("#splash");
+      setTimeout(() => {
+        if (splash) splash.style.opacity = "0";
+        setTimeout(() => {
+          splash?.parentNode?.removeChild(splash);
+          $("#app").classList.remove("hidden");
+        }, CONFIG.SPLASH_DELAYS.remove);
+      }, CONFIG.SPLASH_DELAYS.fadeOut);
+    });
+
+    setTimeout(() => {
+      const s = $("#splash");
+      if (s?.parentNode) {
+        s.parentNode.removeChild(s);
+        $("#app").classList.remove("hidden");
+      }
+    }, CONFIG.SPLASH_DELAYS.fallback);
+  },
+
+  initBrandInput() {
+    const input = $("#brand");
+    const suggestions = $("#brandSuggestions");
+
+    input.addEventListener("input", (e) => {
+      const value = e.target.value;
+      state.brandSuggestions.current = brandAutocomplete.filter(value);
+      state.brandSuggestions.selectedIndex = -1;
+      brandAutocomplete.render();
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (suggestions.style.display === "none") return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        brandAutocomplete.navigate("down");
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        brandAutocomplete.navigate("up");
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        brandAutocomplete.select();
+      } else if (e.key === "Escape") {
+        suggestions.style.display = "none";
+        state.brandSuggestions.selectedIndex = -1;
       }
     });
-    const fromNeck = $("#fromNeck");
-    if(fromNeck && fromNeck.checked){
-      out = out.replace(/(рукав\s+)/, "рукав від горловини ");
-    }
-  }
-  out += "—————————\n";
-  const mats = $all('.materials input:checked').map(i=>i.value);
-  const custom = $("#materialCustom").value.trim();
-  if(custom) mats.push(custom);
-  if(mats.length) out += mats.join("/") + "\n";
-  return out.trim();
-}
 
-/* ================= AUTOSIZE OUTPUT ================= */
-const outputEl = $("#output");
-function updateOutputHeight(){ autosize(outputEl); }
-outputEl.addEventListener("input", updateOutputHeight);
-autosize(outputEl);
+    input.addEventListener("blur", () => {
+      setTimeout(() => (suggestions.style.display = "none"), 140);
+    });
+  },
 
-/* ================= LOCAL STORAGE (load/migrate) ================= */
-let savedData = [];
-function loadSavedData(){
-  // migrate from OLD_KEY if exists and STORAGE_KEY empty
-  try{
-    const old = localStorage.getItem(OLD_KEY);
-    const cur = localStorage.getItem(STORAGE_KEY);
-    if(old && !cur){
-      localStorage.setItem(STORAGE_KEY, old);
-      localStorage.removeItem(OLD_KEY);
-    }
-  }catch(e){}
-  try{
-    savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") || [];
-  }catch(e){ savedData = []; }
-}
-function persistSaved(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData)); }
+  initCategoryPills() {
+    $("#categoryGroup").addEventListener("click", (e) => {
+      const pill = e.target.closest(".category-pill");
+      if (pill) categoryManager.setActive(pill.dataset.cat);
+    });
+  },
 
-/* ================= RENDER SAVED LIST (accordion) ================= */
-const savedListEl = $("#savedList");
-function renderSavedList(){
-  savedListEl.innerHTML = "";
-  savedData.forEach((item, idx) => {
-    const wrapper = document.createElement("div"); wrapper.className = "saved-item";
-    const header = document.createElement("div"); header.className = "saved-header" + (item.copied ? " copied" : "");
-    const title = document.createElement("div"); title.textContent = item.title;
-    const actions = document.createElement("div"); actions.className = "saved-actions";
-
-    // copy all button
-    const copyAllBtn = document.createElement("button"); copyAllBtn.className = "icon-btn"; copyAllBtn.title = "Копіювати весь опис";
-    copyAllBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M16 1H4a1 1 0 0 0-1 1v14h2V3h11V1zm3 4H8a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1zm-1 16H9V7h9v14z"/></svg>`;
-
-    // copy-without-price button (use image icon)
-    const copyNoPriceBtn = document.createElement("button"); copyNoPriceBtn.className = "icon-btn"; copyNoPriceBtn.title = "Копіювати без ціни";
-    const img = document.createElement("img"); img.src = COPY_NOPRICE_ICON; img.alt="cp"; copyNoPriceBtn.appendChild(img);
-
-    // delete button (use DELETE_SVG)
-    const delBtn = document.createElement("button"); delBtn.className = "icon-btn"; delBtn.title = "Видалити";
-    delBtn.innerHTML = DELETE_SVG;
-
-    actions.appendChild(copyAllBtn);
-    actions.appendChild(copyNoPriceBtn);
-    actions.appendChild(delBtn);
-
-    header.appendChild(title);
-    header.appendChild(actions);
-
-    const body = document.createElement("div"); body.className = "saved-body"; body.textContent = item.text;
-
-    // toggle body on header click (ignore clicks on action buttons)
-    header.addEventListener("click", (ev)=>{
-      if(ev.target.closest(".icon-btn")) return;
-      const isVisible = body.style.display === "block";
-      body.style.display = isVisible ? "none" : "block";
+  initButtons() {
+    $("#btnGenerate").addEventListener("click", () => {
+      const output = $("#output");
+      output.value = outputBuilder.build();
+      autosize(output);
     });
 
-    // copy all behavior (mark copied)
-    copyAllBtn.addEventListener("click", (ev)=>{
-      ev.stopPropagation();
-      copyToClipboard(item.text);
-      item.copied = true;
-      persistSaved();
-      renderSavedList();
+    $("#btnCopy").addEventListener("click", () => {
+      const output = $("#output");
+      if (output.value) copyToClipboard(output.value);
     });
 
-    // copy without price
-    copyNoPriceBtn.addEventListener("click", (ev)=>{
-      ev.stopPropagation();
-      // remove first non-empty line that starts with 💸Ціна or first line unconditionally
-      const lines = item.text.split(/\r?\n/);
-      let startIdx = 0;
-      // if first line contains 'Ціна' or emoji, skip it
-      if(lines.length && /цiн|ціна|💸/i.test(lines[0])) startIdx = 1;
-      const noPrice = lines.slice(startIdx).join("\n");
-      copyToClipboard(noPrice);
-      // do NOT mark as copied (only copyAll marks as copied), unless you want both to mark
+    $("#btnSave").addEventListener("click", () => {
+      const text = $("#output").value.trim();
+      if (!text) {
+        alert("Немає тексту для збереження.");
+        return;
+      }
+      savedManager.add(text);
+      formManager.clear();
     });
 
-    // delete
-    delBtn.addEventListener("click", (ev)=>{
-      ev.stopPropagation();
-      if(!confirm("Видалити цей збережений опис?")) return;
-      savedData.splice(idx,1);
-      persistSaved();
-      renderSavedList();
+    $("#btnClearAll").addEventListener("click", () => savedManager.clearAll());
+    $("#fabClear").addEventListener("click", () => formManager.clear());
+  },
+
+  initOutput() {
+    const output = $("#output");
+    output.addEventListener("input", () => autosize(output));
+    autosize(output);
+  },
+
+  preventEnterSubmit() {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.tagName.toLowerCase() !== "textarea") {
+        e.preventDefault();
+      }
     });
+  },
+};
 
-    wrapper.appendChild(header);
-    wrapper.appendChild(body);
-    savedListEl.appendChild(wrapper);
-  });
+/* ==================== APPLICATION INITIALIZATION ==================== */
+function init() {
+  storage.migrate();
+  state.savedDescriptions = storage.load();
+
+  ui.initSplash();
+  ui.initBrandInput();
+  ui.initCategoryPills();
+  ui.initButtons();
+  ui.initOutput();
+  ui.preventEnterSubmit();
+
+  savedManager.render();
 }
 
-/* ================= COPY helper ================= */
-function copyToClipboard(text){
-  if(!text) return;
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).catch(()=> fallbackCopy(text));
-  } else fallbackCopy(text);
-}
-function fallbackCopy(text){
-  const ta = document.createElement("textarea");
-  ta.value = text; document.body.appendChild(ta); ta.select();
-  try{ document.execCommand("copy"); }catch(e){}
-  ta.remove();
-}
+init();
 
-/* ================= BUTTONS: generate/copy/save ================= */
-$("#btnGenerate").addEventListener("click", ()=>{
-  const t = buildResultText();
-  outputEl.value = t;
-  autosize(outputEl);
-});
+/* ==================== CODE STRUCTURE DOCUMENTATION ====================
 
-$("#btnCopy").addEventListener("click", ()=>{
-  if(!outputEl.value) return;
-  copyToClipboard(outputEl.value);
-});
+APPLICATION ARCHITECTURE:
+This application follows a state-driven architecture with clear separation of concerns.
 
-$("#btnSave").addEventListener("click", ()=>{
-  const text = outputEl.value.trim();
-  if(!text){ alert("Немає тексту для збереження."); return; }
-  const title = $("#descInput").value.trim() || "Без назви";
-  const id = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,8);
-  savedData.unshift({ id, title, text, copied: false });
-  persistSaved();
-  renderSavedList();
-  // clear inputs for new entry (leave saved list)
-  clearFormInputsKeepingSaved();
-});
+STATE MANAGEMENT:
+- All application state is centralized in the `state` object
+- State includes: activeCategory, savedDescriptions, brandSuggestions
+- State changes trigger UI updates through manager render methods
 
-/* ============== CLEAR ALL (saved items) ============== */
-$("#btnClearAll").addEventListener("click", ()=>{
-  if(!confirm("Видалити всі збережені описі?")) return;
-  savedData = [];
-  persistSaved();
-  renderSavedList();
-});
+CONFIGURATION:
+- All constants are in CONFIG object at top
+- Easy to modify: brands, categories, field names, storage keys, icons
+- No magic strings scattered throughout code
 
-/* ============== FLOATING CLEAR (clears form inputs only) ============== */
-$("#fabClear").addEventListener("click", ()=>{
-  if(!confirm("Очистити всі поля форми?")) return;
-  clearFormInputsKeepingSaved();
-});
+MODULE ORGANIZATION:
+1. CONFIG - All configuration constants
+2. state - Application state object
+3. Utilities - Helper functions ($, $all, autosize, clipboard)
+4. storage - LocalStorage operations (migrate, load, save)
+5. brandAutocomplete - Brand search and suggestion logic
+6. categoryManager - Category selection and field rendering
+7. outputBuilder - Builds final description text
+8. savedManager - Manages saved descriptions list
+9. formManager - Form clearing operations
+10. ui - UI initialization and event binding
+11. init() - Application startup
 
-/* ============== FORM CLEAR HELPERS ============== */
-function clearFormInputsKeepingSaved(){
-  $all('input[type="text"], input[type="number"], textarea').forEach(i => i.value = "");
-  $all('input[type="checkbox"], input[type="radio"]').forEach(i => i.checked = false);
-  catFieldsContainer.innerHTML = "";
-  outputEl.value = "";
-  autosize(outputEl);
-  [...document.querySelectorAll(".category-pill")].forEach(p => p.classList.remove("active"));
-  activeCategory = null;
-  suggestionsEl.style.display = "none";
-}
+INSTRUCTIONS FOR LLMs ADDING NEW FEATURES:
 
-/* ============== INIT (load saved etc) ============== */
-loadSavedData();
-renderSavedList();
-autosize(outputEl);
+1. ADDING NEW CONFIGURATION:
+   - Add to CONFIG object at top
+   - Keep related configs grouped together
+   - Use SCREAMING_SNAKE_CASE for constants
 
-/* ============== UTILITY: prevent accidental Enter submit ============== */
-document.addEventListener("keydown", function(e){
-  if(e.key === "Enter" && e.target.tagName.toLowerCase() !== "textarea"){
-    e.preventDefault();
-  }
-});
+2. ADDING NEW STATE:
+   - Add properties to `state` object
+   - Document what the state represents
+   - Initialize with sensible defaults
+
+3. ADDING NEW FEATURES:
+   - Create a new manager object (e.g., `newFeatureManager`)
+   - Add methods: render(), update(), clear() as needed
+   - Keep functions pure when possible (input → output, no side effects)
+   - Use state object for data, not global variables
+
+4. ADDING NEW UI ELEMENTS:
+   - Add initialization in `ui.initYourFeature()`
+   - Call from `init()` function
+   - Use event delegation where possible
+   - Keep event handlers thin - delegate to managers
+
+5. MODIFYING EXISTING FEATURES:
+   - Find relevant manager object
+   - Modify methods within that manager
+   - Update state object if data structure changes
+   - Update CONFIG if constants change
+
+6. ADDING NEW CATEGORIES:
+   - Add to CONFIG.CATEGORY_FIELDS
+   - Add field names to CONFIG.NUMERIC_FIELDS if numeric
+   - Add to CONFIG.CATEGORIES_WITH_NECK_CHECKBOX if needs checkbox
+
+7. ADDING NEW STORAGE:
+   - Add methods to `storage` object
+   - Keep localStorage operations centralized
+   - Handle errors gracefully (try/catch)
+
+8. DEBUGGING:
+   - State is visible: console.log(state)
+   - Config is visible: console.log(CONFIG)
+   - Each manager is testable independently
+
+9. BEST PRACTICES:
+   - Don't use inline event handlers
+   - Don't scatter constants throughout code
+   - Don't modify state directly in UI code
+   - Don't create global variables
+   - Use manager methods to update state
+   - Keep functions focused on single responsibility
+
+10. COMMON PATTERNS:
+    - Manager.render() - updates DOM from state
+    - Manager.update() - updates state
+    - storage.save() - persists state changes
+    - ui.initX() - sets up event listeners
+
+==================== END DOCUMENTATION ==================== */

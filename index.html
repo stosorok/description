@@ -2,7 +2,10 @@
 <html lang="uk">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+    />
     <title>Опис 1.2</title>
     <link rel="apple-touch-icon" href="./icon.png" />
     <link rel="stylesheet" href="./style.css" />
@@ -12,86 +15,113 @@
     <!-- SPLASH -->
     <div id="splash" role="dialog" aria-hidden="false">
       <!-- 🔧 Іконку можна змінити тут -->
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="m21.72 10.13-2.29 2.3c-.39.39-1.03.39-1.42 0l-.01-.02V18c0 1.65-1.35 3-3 3H9c-1.65 0-3-1.35-3-3v-5.59l-.01.02c-.39.39-1.03.39-1.42 0l-2.29-2.3c-.78-.78-.78-2.04 0-2.82l4.01-4.02C6.48 3.11 6.73 3 7 3h2c.31 0 .61.15.8.4.52.7 1.33 1.1 2.2 1.1s1.68-.4 2.2-1.1c.19-.25.49-.4.8-.4h2c.27 0 .52.11.71.29l4.01 4.02c.78.78.78 2.04 0 2.82z" fill="#ffffff"></path>
+      <svg
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="m21.72 10.13-2.29 2.3c-.39.39-1.03.39-1.42 0l-.01-.02V18c0 1.65-1.35 3-3 3H9c-1.65 0-3-1.35-3-3v-5.59l-.01.02c-.39.39-1.03.39-1.42 0l-2.29-2.3c-.78-.78-.78-2.04 0-2.82l4.01-4.02C6.48 3.11 6.73 3 7 3h2c.31 0 .61.15.8.4.52.7 1.33 1.1 2.2 1.1s1.68-.4 2.2-1.1c.19-.25.49-.4.8-.4h2c.27 0 .52.11.71.29l4.01 4.02c.78.78.78 2.04 0 2.82z"
+          fill="#ffffff"
+        ></path>
       </svg>
       <div class="s-title">Опис 1.2</div>
       <div class="s-ver">версія 1.2</div>
     </div>
     <div class="container hidden" id="app">
       <h1>Опис 1.2</h1>
+
       <!-- Ціна -->
       <div class="form-section">
         <label class="section" for="price">Ціна 💸</label>
-        <input id="price" type="number" inputmode="decimal" step="0.01" placeholder="Наприклад: 450">
+        <input
+          id="price"
+          type="number"
+          inputmode="decimal"
+          step="0.01"
+          placeholder="Наприклад: 450"
+        />
       </div>
       <!-- Бренд з автодопомогою -->
       <div class="form-section">
         <label class="section" for="brand">Бренд</label>
         <div class="autocomplete-wrap">
-          <input id="brand" type="text" placeholder="Почніть вводити бренд..." autocomplete="off" />
-          <div id="brandSuggestions" class="suggestions" style="display:none"></div>
+          <input
+            id="brand"
+            type="text"
+            placeholder="Почніть вводити бренд..."
+            autocomplete="off"
+          />
+          <div
+            id="brandSuggestions"
+            class="suggestions"
+            style="display: none"
+          ></div>
         </div>
       </div>
       <!-- Опис -->
       <div class="form-section">
         <label class="section" for="descInput">Опис</label>
-        <input id="descInput" type="text" placeholder="Короткий опис у 1 реченні" />
+        <input
+          id="descInput"
+          type="text"
+          placeholder="Короткий опис у 1 реченні"
+        />
       </div>
       <!-- Стан -->
       <div class="state">
         <span>Стан:</span>
         <label class="pill">
-        <input type="radio" name="state" value="Стан чудовий">
-        <span>Стан чудовий</span>
+          <input type="radio" name="state" value="Стан чудовий" />
+          <span>Стан чудовий</span>
         </label>
         <label class="pill">
-        <input type="radio" name="state" value="Стан дуже хороший">
-        <span>Стан дуже хороший</span>
+          <input type="radio" name="state" value="Стан дуже хороший" />
+          <span>Стан дуже хороший</span>
         </label>
       </div>
-      <hr>
+      <hr />
       <!-- Розмір -->
       <div class="sizes">
         <span>Розмір:</span>
         <label class="pill">
-        <input type="checkbox" value="XXS">
-        <span>XXS</span>
+          <input type="checkbox" value="XXS" />
+          <span>XXS</span>
         </label>
         <label class="pill">
-        <input type="checkbox" value="XS">
-        <span>XS</span>
+          <input type="checkbox" value="XS" />
+          <span>XS</span>
         </label>
         <label class="pill">
-        <input type="checkbox" value="S">
-        <span>S</span>
+          <input type="checkbox" value="S" />
+          <span>S</span>
         </label>
         <label class="pill">
-        <input type="checkbox" value="M">
-        <span>M</span>
+          <input type="checkbox" value="M" />
+          <span>M</span>
         </label>
         <label class="pill">
-        <input type="checkbox" value="L">
-        <span>L</span>
+          <input type="checkbox" value="L" />
+          <span>L</span>
         </label>
         <label class="pill">
-        <input type="checkbox" value="XL">
-        <span>XL</span>
+          <input type="checkbox" value="XL" />
+          <span>XL</span>
         </label>
         <label class="pill">
-        <input type="checkbox" value="XXL">
-        <span>XXL</span>
+          <input type="checkbox" value="XXL" />
+          <span>XXL</span>
         </label>
         <label class="pill">
-        <input type="checkbox" value="XXXL">
-        <span>XXXL</span>
+          <input type="checkbox" value="XXXL" />
+          <span>XXXL</span>
         </label>
         <label class="pill">
-        <input type="checkbox" value="XXXXL">
-        <span>XXXXL</span>
+          <input type="checkbox" value="XXXXL" />
+          <span>XXXXL</span>
         </label>
       </div>
-      <hr>
+      <hr />
       <!-- Категорії -->
       <div class="form-section">
         <label class="section">Категорія</label>
@@ -105,35 +135,37 @@
         </div>
         <div id="categoryFields" class="cat-fields"></div>
       </div>
-      <hr>
+      <hr />
       <!-- Матеріали -->
       <div class="form-section materials">
         <label class="section">Матеріал</label>
-        <label><input type="checkbox" value="бавовна"> Бавовна</label>
-        <label><input type="checkbox" value="віскоза"> Віскоза</label>
-        <label><input type="checkbox" value="еластан"> Еластан</label>
-        <label><input type="checkbox" value="вовна"> Вовна</label>
-        <label><input type="checkbox" value="кашемір"> Кашемір</label>
-        <label><input type="checkbox" value="нейлон"> Нейлон</label>
-        <label><input type="checkbox" value="поліамід"> Поліамід</label>
-        <label><input type="checkbox" value="акрил"> Акрил</label>
-        <label><input type="checkbox" value="поліестер"> Поліестер</label>
-        <label><input type="checkbox" value="льон"> Льон</label>
-        <label><input type="checkbox" value="альпака"> Альпака</label>
-        <label><input type="checkbox" value="мохер"> Мохер</label>
-        <label><input type="checkbox" value="меринос"> Меринос</label>
-        <label><input type="checkbox" value="шовк"> Шовк</label>
-        <label><input type="checkbox" value="екошкіра"> Екошкіра</label>
-        <label><input type="checkbox" value="нейлон"> Нейлон</label>
-        <div style="margin-top:8px;">
-          <input id="materialCustom" type="text" placeholder="Інший матеріал">
+        <label><input type="checkbox" value="бавовна" /> Бавовна</label>
+        <label><input type="checkbox" value="віскоза" /> Віскоза</label>
+        <label><input type="checkbox" value="еластан" /> Еластан</label>
+        <label><input type="checkbox" value="вовна" /> Вовна</label>
+        <label><input type="checkbox" value="кашемір" /> Кашемір</label>
+        <label><input type="checkbox" value="нейлон" /> Нейлон</label>
+        <label><input type="checkbox" value="поліамід" /> Поліамід</label>
+        <label><input type="checkbox" value="акрил" /> Акрил</label>
+        <label><input type="checkbox" value="поліестер" /> Поліестер</label>
+        <label><input type="checkbox" value="льон" /> Льон</label>
+        <label><input type="checkbox" value="альпака" /> Альпака</label>
+        <label><input type="checkbox" value="мохер" /> Мохер</label>
+        <label><input type="checkbox" value="меринос" /> Меринос</label>
+        <label><input type="checkbox" value="шовк" /> Шовк</label>
+        <label><input type="checkbox" value="екошкіра" /> Екошкіра</label>
+        <label><input type="checkbox" value="нейлон" /> Нейлон</label>
+        <div style="margin-top: 8px">
+          <input id="materialCustom" type="text" placeholder="Інший матеріал" />
         </div>
       </div>
       <!-- Кнопки -->
       <div class="form-section actions">
         <button id="btnGenerate" class="btn">Генерувати</button>
         <button id="btnCopy" class="btn secondary">Копіювати</button>
-        <button id="btnSave" class="btn" style="background:#414141">Зберегти</button>
+        <button id="btnSave" class="btn" style="background: #414141">
+          Зберегти
+        </button>
       </div>
       <!-- Output -->
       <div class="form-section">
@@ -141,15 +173,33 @@
       </div>
       <!-- Збережені (акордеони) -->
       <div id="savedList"></div>
-      <div style="margin-top:12px; text-align:center;">
-        <button id="btnClearAll" style="padding:8px 12px; border-radius:8px; border:0; background:var(--green); color:#fff; font-weight:700;">🗑 Видалити все</button>
+      <div style="margin-top: 12px; text-align: center">
+        <button
+          id="btnClearAll"
+          style="
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 0;
+            background: var(--green);
+            color: #fff;
+            font-weight: 700;
+          "
+        >
+          🗑 Видалити все
+        </button>
       </div>
     </div>
     <!-- floating clear (previous square style) -->
     <button class="fab-clear" id="fabClear" title="Очистити поля">
       <!-- метла/сміття була просилась раніше — тут простий метелик/мітла icon -->
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M3 6h18v2H3V6zm2 3h14v12H5V9zm3 2v8h2v-8H8zm4 0v8h2v-8h-2zM9 4V2h6v2h5v2H4V4h5z"/>
+      <svg
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M3 6h18v2H3V6zm2 3h14v12H5V9zm3 2v8h2v-8H8zm4 0v8h2v-8h-2zM9 4V2h6v2h5v2H4V4h5z"
+        />
       </svg>
     </button>
   </body>
