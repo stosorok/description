@@ -230,19 +230,52 @@ const categoryManager = {
       const label = document.createElement("label");
       label.textContent = field;
 
-      const input = document.createElement("input");
-      input.dataset.field = field;
+      // Спеціальний випадок: штани + довжина = два поля
+      if (state.activeCategory === "pants" && field === "довжина") {
+        const wrap = document.createElement("div");
+        wrap.style.display = "flex";
+        wrap.style.alignItems = "center";
+        wrap.style.gap = "6px";
 
-      if (CONFIG.NUMERIC_FIELDS.includes(field)) {
-        input.type = "number";
-        input.inputMode = "numeric";
-        input.pattern = "[0-9]*";
+        const input1 = document.createElement("input");
+        input1.type = "number";
+        input1.inputMode = "numeric";
+        input1.pattern = "[0-9]*";
+        input1.dataset.field = "довжина1";
+        input1.placeholder = "внутр.";
+
+        const slash = document.createElement("span");
+        slash.textContent = "/";
+        slash.style.fontWeight = "700";
+
+        const input2 = document.createElement("input");
+        input2.type = "number";
+        input2.inputMode = "numeric";
+        input2.pattern = "[0-9]*";
+        input2.dataset.field = "довжина2";
+        input2.placeholder = "зовн.";
+
+        wrap.appendChild(input1);
+        wrap.appendChild(slash);
+        wrap.appendChild(input2);
+        row.appendChild(label);
+        row.appendChild(wrap);
       } else {
-        input.type = "text";
+        const input = document.createElement("input");
+        input.dataset.field = field;
+
+        if (CONFIG.NUMERIC_FIELDS.includes(field)) {
+          input.type = "number";
+          input.inputMode = "numeric";
+          input.pattern = "[0-9]*";
+        } else {
+          input.type = "text";
+        }
+
+        row.appendChild(label);
+        row.appendChild(input);
       }
 
-      row.appendChild(label);
-      row.appendChild(input);
       container.appendChild(row);
     });
 
@@ -290,9 +323,27 @@ const outputBuilder = {
     if (sizes.length) output += `розмір ${sizes.join("/")} \n`;
 
     if (state.activeCategory) {
+      const fieldValues = {};
+
       $all("#categoryFields input[data-field]").forEach((inp) => {
+        const field = inp.dataset.field;
         const val = inp.value.trim();
-        if (val) output += `${inp.dataset.field} ${val}\n`;
+        if (val) fieldValues[field] = val;
+      });
+
+      if (state.activeCategory === "pants") {
+        const len1 = fieldValues["довжина1"];
+        const len2 = fieldValues["довжина2"];
+        if (len1 || len2) {
+          fieldValues["довжина"] = `${len1 || ""}/${len2 || ""}`;
+        }
+        delete fieldValues["довжина1"];
+        delete fieldValues["довжина2"];
+      }
+
+      CONFIG.CATEGORY_FIELDS[state.activeCategory].forEach((field) => {
+        const val = fieldValues[field];
+        if (val) output += `${field} ${val}\n`;
       });
 
       const fromNeck = $("#fromNeck");
@@ -565,92 +616,3 @@ function init() {
 }
 
 init();
-
-/* ==================== CODE STRUCTURE DOCUMENTATION ====================
-
-APPLICATION ARCHITECTURE:
-This application follows a state-driven architecture with clear separation of concerns.
-
-STATE MANAGEMENT:
-- All application state is centralized in the `state` object
-- State includes: activeCategory, savedDescriptions, brandSuggestions
-- State changes trigger UI updates through manager render methods
-
-CONFIGURATION:
-- All constants are in CONFIG object at top
-- Easy to modify: brands, categories, field names, storage keys, icons
-- No magic strings scattered throughout code
-
-MODULE ORGANIZATION:
-1. CONFIG - All configuration constants
-2. state - Application state object
-3. Utilities - Helper functions ($, $all, autosize, clipboard)
-4. storage - LocalStorage operations (migrate, load, save)
-5. brandAutocomplete - Brand search and suggestion logic
-6. categoryManager - Category selection and field rendering
-7. outputBuilder - Builds final description text
-8. savedManager - Manages saved descriptions list
-9. formManager - Form clearing operations
-10. ui - UI initialization and event binding
-11. init() - Application startup
-
-INSTRUCTIONS FOR LLMs ADDING NEW FEATURES:
-
-1. ADDING NEW CONFIGURATION:
-   - Add to CONFIG object at top
-   - Keep related configs grouped together
-   - Use SCREAMING_SNAKE_CASE for constants
-
-2. ADDING NEW STATE:
-   - Add properties to `state` object
-   - Document what the state represents
-   - Initialize with sensible defaults
-
-3. ADDING NEW FEATURES:
-   - Create a new manager object (e.g., `newFeatureManager`)
-   - Add methods: render(), update(), clear() as needed
-   - Keep functions pure when possible (input → output, no side effects)
-   - Use state object for data, not global variables
-
-4. ADDING NEW UI ELEMENTS:
-   - Add initialization in `ui.initYourFeature()`
-   - Call from `init()` function
-   - Use event delegation where possible
-   - Keep event handlers thin - delegate to managers
-
-5. MODIFYING EXISTING FEATURES:
-   - Find relevant manager object
-   - Modify methods within that manager
-   - Update state object if data structure changes
-   - Update CONFIG if constants change
-
-6. ADDING NEW CATEGORIES:
-   - Add to CONFIG.CATEGORY_FIELDS
-   - Add field names to CONFIG.NUMERIC_FIELDS if numeric
-   - Add to CONFIG.CATEGORIES_WITH_NECK_CHECKBOX if needs checkbox
-
-7. ADDING NEW STORAGE:
-   - Add methods to `storage` object
-   - Keep localStorage operations centralized
-   - Handle errors gracefully (try/catch)
-
-8. DEBUGGING:
-   - State is visible: console.log(state)
-   - Config is visible: console.log(CONFIG)
-   - Each manager is testable independently
-
-9. BEST PRACTICES:
-   - Don't use inline event handlers
-   - Don't scatter constants throughout code
-   - Don't modify state directly in UI code
-   - Don't create global variables
-   - Use manager methods to update state
-   - Keep functions focused on single responsibility
-
-10. COMMON PATTERNS:
-    - Manager.render() - updates DOM from state
-    - Manager.update() - updates state
-    - storage.save() - persists state changes
-    - ui.initX() - sets up event listeners
-
-==================== END DOCUMENTATION ==================== */
