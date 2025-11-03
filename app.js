@@ -230,37 +230,43 @@ const categoryManager = {
       const label = document.createElement("label");
       label.textContent = field;
 
-      // Спеціальний випадок: штани + довжина = два поля
-      if (state.activeCategory === "pants" && field === "довжина") {
-        const wrap = document.createElement("div");
-        wrap.style.display = "flex";
-        wrap.style.alignItems = "center";
-        wrap.style.gap = "6px";
+// Спеціальний випадок: штани + довжина = два поля
+if (state.activeCategory === "pants" && field === "довжина") {
+  const wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.alignItems = "center";
+  wrap.style.gap = "6px";
+  wrap.style.flex = "1"; // Щоб займав всю доступну ширину
 
-        const input1 = document.createElement("input");
-        input1.type = "number";
-        input1.inputMode = "numeric";
-        input1.pattern = "[0-9]*";
-        input1.dataset.field = "довжина1";
-        input1.placeholder = "внутр.";
+  const input1 = document.createElement("input");
+  input1.type = "number";
+  input1.inputMode = "numeric";
+  input1.pattern = "[0-9]*";
+  input1.dataset.field = "довжина1";
+  input1.placeholder = "внутр.";
+  input1.style.flex = "1"; // Рівномірне розтягування
+  input1.style.minWidth = "0"; // Дозволяє інпуту стискатися
 
-        const slash = document.createElement("span");
-        slash.textContent = "/";
-        slash.style.fontWeight = "700";
+  const slash = document.createElement("span");
+  slash.textContent = "/";
+  slash.style.fontWeight = "700";
+  slash.style.flexShrink = "0"; // Слеш не стискається
 
-        const input2 = document.createElement("input");
-        input2.type = "number";
-        input2.inputMode = "numeric";
-        input2.pattern = "[0-9]*";
-        input2.dataset.field = "довжина2";
-        input2.placeholder = "зовн.";
+  const input2 = document.createElement("input");
+  input2.type = "number";
+  input2.inputMode = "numeric";
+  input2.pattern = "[0-9]*";
+  input2.dataset.field = "довжина2";
+  input2.placeholder = "зовн.";
+  input2.style.flex = "1"; // Рівномірне розтягування
+  input2.style.minWidth = "0"; // Дозволяє інпуту стискатися
 
-        wrap.appendChild(input1);
-        wrap.appendChild(slash);
-        wrap.appendChild(input2);
-        row.appendChild(label);
-        row.appendChild(wrap);
-      } else {
+  wrap.appendChild(input1);
+  wrap.appendChild(slash);
+  wrap.appendChild(input2);
+  row.appendChild(label);
+  row.appendChild(wrap);
+} else {
         const input = document.createElement("input");
         input.dataset.field = field;
 
