@@ -378,3 +378,10 @@ textarea {
 .hidden {
   display: none !important;
 }
+
+/* Fix for iPhone Home Indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+}
