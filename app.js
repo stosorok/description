@@ -20,7 +20,7 @@ const CONFIG = {
     "Pull & Bear",
     "COS",
     "Arket",
-    "Massimo Dutty",
+    "Massimo Dutti",
     "Next",
     "New Look",
     "& Other Stories",
@@ -39,6 +39,25 @@ const CONFIG = {
     "C&A",
     "Weekday",
     "Calvin Klein",
+    "Uniqlo",
+    "Urban Outfitters",
+    "Vila",
+    "Puma",
+    "Cotton On",
+    "Motel",
+    "Pepe Jeans",
+    "Levis",
+    "Guess",
+    "Michael Kors",
+    "JJXX",
+    "Selected",
+    "Old Navy",
+    "Gap",
+    "Nobody's Child",
+    "Brandy Melville",
+    "Papaya",
+    "Per Una",
+    "Jigsaw",
   ],
 
   CATEGORY_FIELDS: {
@@ -230,43 +249,43 @@ const categoryManager = {
       const label = document.createElement("label");
       label.textContent = field;
 
-// Спеціальний випадок: штани + довжина = два поля
-if (state.activeCategory === "pants" && field === "довжина") {
-  const wrap = document.createElement("div");
-  wrap.style.display = "flex";
-  wrap.style.alignItems = "center";
-  wrap.style.gap = "6px";
-  wrap.style.flex = "1"; // Щоб займав всю доступну ширину
+      // Спеціальний випадок: штани + довжина = два поля
+      if (state.activeCategory === "pants" && field === "довжина") {
+        const wrap = document.createElement("div");
+        wrap.style.display = "flex";
+        wrap.style.alignItems = "center";
+        wrap.style.gap = "6px";
+        wrap.style.flex = "1";
 
-  const input1 = document.createElement("input");
-  input1.type = "number";
-  input1.inputMode = "numeric";
-  input1.pattern = "[0-9]*";
-  input1.dataset.field = "довжина1";
-  input1.placeholder = "внутр.";
-  input1.style.flex = "1"; // Рівномірне розтягування
-  input1.style.minWidth = "0"; // Дозволяє інпуту стискатися
+        const input1 = document.createElement("input");
+        input1.type = "number";
+        input1.inputMode = "numeric";
+        input1.pattern = "[0-9]*";
+        input1.dataset.field = "довжина1";
+        input1.placeholder = "внутр.";
+        input1.style.flex = "1";
+        input1.style.minWidth = "0";
 
-  const slash = document.createElement("span");
-  slash.textContent = "/";
-  slash.style.fontWeight = "700";
-  slash.style.flexShrink = "0"; // Слеш не стискається
+        const slash = document.createElement("span");
+        slash.textContent = "/";
+        slash.style.fontWeight = "700";
+        slash.style.flexShrink = "0";
 
-  const input2 = document.createElement("input");
-  input2.type = "number";
-  input2.inputMode = "numeric";
-  input2.pattern = "[0-9]*";
-  input2.dataset.field = "довжина2";
-  input2.placeholder = "зовн.";
-  input2.style.flex = "1"; // Рівномірне розтягування
-  input2.style.minWidth = "0"; // Дозволяє інпуту стискатися
+        const input2 = document.createElement("input");
+        input2.type = "number";
+        input2.inputMode = "numeric";
+        input2.pattern = "[0-9]*";
+        input2.dataset.field = "довжина2";
+        input2.placeholder = "зовн.";
+        input2.style.flex = "1";
+        input2.style.minWidth = "0";
 
-  wrap.appendChild(input1);
-  wrap.appendChild(slash);
-  wrap.appendChild(input2);
-  row.appendChild(label);
-  row.appendChild(wrap);
-} else {
+        wrap.appendChild(input1);
+        wrap.appendChild(slash);
+        wrap.appendChild(input2);
+        row.appendChild(label);
+        row.appendChild(wrap);
+      } else {
         const input = document.createElement("input");
         input.dataset.field = field;
 
@@ -316,6 +335,7 @@ const outputBuilder = {
     const desc = $("#descInput").value.trim();
     const condition =
       (document.querySelector('input[name="state"]:checked') || {}).value || "";
+    const defects = $("#defects").value.trim();
     const sizes = $all('.sizes input[type="checkbox"]:checked').map(
       (c) => c.value
     );
@@ -324,8 +344,10 @@ const outputBuilder = {
     if (price) output += `💸Ціна ${price} грн\n`;
     if (brand) output += `${brand}\n`;
     if (desc) output += `${desc}\n`;
-    if (condition) output += `${condition}\n`;
-    output += "―――――――\n";
+    if (condition) {
+      output += defects ? `${condition}, ${defects}\n` : `${condition}\n`;
+    }
+    output += "‑‑‑‑‑‑‑\n";
     if (sizes.length) output += `розмір ${sizes.join("/")} \n`;
 
     if (state.activeCategory) {
@@ -358,7 +380,7 @@ const outputBuilder = {
       }
     }
 
-    output += "―――――――\n";
+    output += "‑‑‑‑‑‑‑\n";
 
     const materials = $all(".materials input:checked").map((i) => i.value);
     const customMaterial = $("#materialCustom").value.trim();
@@ -418,7 +440,7 @@ const savedManager = {
       header.className = "saved-header" + (item.copied ? " copied" : "");
 
       const title = document.createElement("div");
-      title.textContent = item.title;
+      title.textContent = `${idx + 1}. ${item.title}`;
 
       const actions = document.createElement("div");
       actions.className = "saved-actions";
