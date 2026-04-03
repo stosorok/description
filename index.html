@@ -69,16 +69,29 @@
         />
       </div>
       <!-- Стан -->
-      <div class="state">
-        <span>Стан:</span>
-        <label class="pill">
-          <input type="radio" name="state" value="Стан чудовий" />
-          <span>Стан чудовий</span>
-        </label>
-        <label class="pill">
-          <input type="radio" name="state" value="Стан дуже хороший" />
-          <span>Стан дуже хороший</span>
-        </label>
+      <div class="form-section">
+        <label class="section">Стан</label>
+        <div class="state">
+          <label class="pill">
+            <input type="radio" name="state" value="Стан чудовий" />
+            <span>Стан чудовий</span>
+          </label>
+          <label class="pill">
+            <input type="radio" name="state" value="Стан дуже хороший" />
+            <span>Стан дуже хороший</span>
+          </label>
+          <label class="pill">
+            <input type="radio" name="state" value="Новий з біркою" />
+            <span>Новий з біркою</span>
+          </label>
+        </div>
+        <div style="margin-top: 8px;">
+          <input
+            id="defects"
+            type="text"
+            placeholder="Дефекти (необов'язково)"
+          />
+        </div>
       </div>
       <hr />
       <!-- Розмір -->
@@ -154,7 +167,18 @@
         <label><input type="checkbox" value="меринос" /> Меринос</label>
         <label><input type="checkbox" value="шовк" /> Шовк</label>
         <label><input type="checkbox" value="екошкіра" /> Екошкіра</label>
-        <label><input type="checkbox" value="нейлон" /> Нейлон</label>
+        <label><input type="checkbox" value="ліоцел" /> Ліоцел</label>
+        <label><input type="checkbox" value="модал" /> Модал</label>
+        <label><input type="checkbox" value="купро" /> Купро</label>
+        <label><input type="checkbox" value="мереживо" /> Мереживо</label>
+        <label><input type="checkbox" value="сатин" /> Сатин</label>
+        <label><input type="checkbox" value="велюр" /> Велюр</label>
+        <label><input type="checkbox" value="сітка" /> Сітка</label>
+        <label><input type="checkbox" value="вельвет" /> Вельвет</label>
+        <label><input type="checkbox" value="замш" /> Замш</label>
+        <label><input type="checkbox" value="люрекс" /> Люрекс</label>
+        <label><input type="checkbox" value="муслін" /> Муслін</label>
+        <label><input type="checkbox" value="шифон" /> Шифон</label>
         <div style="margin-top: 8px">
           <input id="materialCustom" type="text" placeholder="Інший матеріал" />
         </div>
@@ -173,7 +197,7 @@
       </div>
       <!-- Збережені (акордеони) -->
       <div id="savedList"></div>
-      <div style="margin-top: 12px; text-align: center">
+      <div style="margin-top: 12px; margin-bottom: 80px; text-align: center">
         <button
           id="btnClearAll"
           style="
